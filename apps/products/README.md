@@ -103,3 +103,65 @@ kubectl logs <pod-name>           # app logs
 kubectl describe pod <pod-name>   # debug a failing pod
 kubectl delete -f k8s/            # tear everything down
 ```
+
+## Deploying with Helm
+
+> **Note:** From this point on the `k8s/` folder is no longer needed. Helm replaces the raw manifests entirely.
+> You can delete it and run `kubectl delete -f k8s/` to clean up any resources it created before switching.
+
+The Helm chart lives in `helm/products/` and wraps the same `Deployment` and `Service` as the raw manifests,
+but parameterized via `values.yaml`.
+
+Key concept — `{{ .Release.Name }}` is used for all resource names instead of hardcoding `products`.
+This allows installing multiple instances of the same chart side by side (e.g. staging vs production).
+
+### Chart structure
+
+```
+helm/products/
+├── Chart.yaml              # chart metadata
+├── values.yaml             # default values (image, replicas, service, probe)
+└── templates/
+    ├── deployment.yaml
+    └── service.yaml
+```
+
+### Install
+
+Remove raw manifests first to avoid conflicts:
+
+```bash
+kubectl delete -f k8s/
+```
+
+Install the release:
+
+```bash
+# From apps/products/
+helm install products ./helm/products
+```
+
+### Verify
+
+```bash
+helm list                                          # shows the active release
+kubectl get pods                                   # pod should come up
+kubectl port-forward deployment/products 8080:8080
+curl http://localhost:8080/products
+```
+
+### Upgrade
+
+```bash
+# Change a value on the fly (e.g. scale replicas)
+helm upgrade products ./helm/products --set replicaCount=2
+
+# Or edit values.yaml and upgrade
+helm upgrade products ./helm/products
+```
+
+### Uninstall
+
+```bash
+helm uninstall products
+```

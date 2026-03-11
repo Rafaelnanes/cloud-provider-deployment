@@ -1,0 +1,15 @@
+replicaCount: 1
+
+image:
+  name: products
+  tag: jvm
+  pullPolicy: Never
+
+service:
+  type: NodePort
+  port: 8080
+
+readinessProbe:
+  path: /products
+  initialDelaySeconds: 5
+  periodSeconds: 5
