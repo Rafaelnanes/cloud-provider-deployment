@@ -1,0 +1,29 @@
+# Stage 1: Compile native image using GraalVM
+FROM ghcr.io/graalvm/native-image-community:21-ol9 AS builder
+
+WORKDIR /app
+
+RUN microdnf install -y findutils
+
+# Copy Gradle wrapper and dependency descriptors first for layer caching
+COPY gradle gradle
+COPY gradlew gradlew
+COPY build.gradle.kts build.gradle.kts
+COPY settings.gradle.kts settings.gradle.kts
+
+RUN chmod +x gradlew && ./gradlew dependencies --no-daemon -q
+
+# Copy source and compile the native binary
+COPY src src
+RUN ./gradlew nativeCompile --no-daemon -x test
+
+# Stage 2: Minimal runtime image (no JVM needed)
+FROM debian:bookworm-slim
+
+WORKDIR /app
+
+COPY --from=builder /app/build/native/nativeCompile/products .
+
+EXPOSE 8080
+
+ENTRYPOINT ["./products"]
