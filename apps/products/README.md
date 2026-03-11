@@ -1,0 +1,1 @@
+This application is just a simple one with a simple endpoint to be used to create a jar and later the docker image to use in k8
