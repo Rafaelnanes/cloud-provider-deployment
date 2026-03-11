@@ -6,3 +6,6 @@ image:
 
 service:
   type: NodePort
+
+config:
+  exampleValue: dev

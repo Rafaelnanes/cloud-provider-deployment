@@ -1,8 +1,11 @@
 replicaCount: 3
 
 image:
-  tag: latest
-  pullPolicy: Always
+  tag: jvm
+  pullPolicy: Never
 
 service:
-  type: LoadBalancer
+  type: NodePort
+
+config:
+  exampleValue: prod

@@ -13,3 +13,6 @@ readinessProbe:
   path: /products
   initialDelaySeconds: 5
   periodSeconds: 5
+
+config:
+  exampleValue: default

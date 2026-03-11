@@ -1,3 +1,5 @@
 spring:
   application:
     name: products
+
+service.exampleValue: ${EXAMPLE_VALUE}

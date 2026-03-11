@@ -140,12 +140,14 @@ kubectl delete -f k8s/
 ```
 
 Install for dev (Minikube):
+
 ```bash
 # From apps/products/
 helm install products-dev ./helm/products -f ./helm/products/values.yaml -f ./helm/products/values-dev.yaml
 ```
 
 Install for prod (cloud cluster):
+
 ```bash
 helm install products-prod ./helm/products -f ./helm/products/values.yaml -f ./helm/products/values-prod.yaml
 ```
@@ -155,7 +157,7 @@ helm install products-prod ./helm/products -f ./helm/products/values.yaml -f ./h
 ```bash
 helm list                                          # shows the active release
 kubectl get pods                                   # pod should come up
-kubectl port-forward deployment/products 8080:8080
+kubectl port-forward deployment/products-dev 8080:8080    
 curl http://localhost:8080/products
 ```
 

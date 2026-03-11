@@ -26,3 +26,6 @@ spec:
               port: {{ .Values.service.port }}
             initialDelaySeconds: {{ .Values.readinessProbe.initialDelaySeconds }}
             periodSeconds: {{ .Values.readinessProbe.periodSeconds }}
+          envFrom:
+            - configMapRef:
+                name: {{ .Release.Name }}-config
