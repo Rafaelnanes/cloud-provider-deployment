@@ -1,0 +1,8 @@
+replicaCount: 3
+
+image:
+  tag: latest
+  pullPolicy: Always
+
+service:
+  type: LoadBalancer

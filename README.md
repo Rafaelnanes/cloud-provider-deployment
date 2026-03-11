@@ -40,7 +40,6 @@ learning path.
 - Create a Helm chart for the `products` app (wrapping the existing manifests)
 - Use `values.yaml` to parameterize image tag, replicas, and service config
 - Install and upgrade the release locally on Minikube with `helm install/upgrade`
-- Add different ymls for product application and cover it in helm
 
 ### Phase 4 — Service Mesh with Istio
 

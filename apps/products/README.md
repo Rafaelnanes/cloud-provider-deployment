@@ -121,10 +121,15 @@ This allows installing multiple instances of the same chart side by side (e.g. s
 helm/products/
 ├── Chart.yaml              # chart metadata
 ├── values.yaml             # default values (image, replicas, service, probe)
+├── values-dev.yaml         # dev overrides (NodePort, 1 replica, local image)
+├── values-prod.yaml        # prod overrides (LoadBalancer, 3 replicas, Always pull)
 └── templates/
     ├── deployment.yaml
     └── service.yaml
 ```
+
+`values.yaml` holds the base defaults. Environment files only override what changes —
+Helm merges them in order, with later files taking precedence.
 
 ### Install
 
@@ -134,11 +139,15 @@ Remove raw manifests first to avoid conflicts:
 kubectl delete -f k8s/
 ```
 
-Install the release:
-
+Install for dev (Minikube):
 ```bash
 # From apps/products/
-helm install products ./helm/products
+helm install products-dev ./helm/products -f ./helm/products/values.yaml -f ./helm/products/values-dev.yaml
+```
+
+Install for prod (cloud cluster):
+```bash
+helm install products-prod ./helm/products -f ./helm/products/values.yaml -f ./helm/products/values-prod.yaml
 ```
 
 ### Verify
@@ -153,15 +162,26 @@ curl http://localhost:8080/products
 ### Upgrade
 
 ```bash
-# Change a value on the fly (e.g. scale replicas)
-helm upgrade products ./helm/products --set replicaCount=2
+# Dev
+helm upgrade products-dev ./helm/products -f ./helm/products/values.yaml -f ./helm/products/values-dev.yaml
 
-# Or edit values.yaml and upgrade
-helm upgrade products ./helm/products
+# Prod
+helm upgrade products-prod ./helm/products -f ./helm/products/values.yaml -f ./helm/products/values-prod.yaml
+
+# Override a single value on the fly (e.g. bump the image tag)
+helm upgrade products-dev ./helm/products -f ./helm/products/values.yaml -f ./helm/products/values-dev.yaml --set image.tag=1.1.0
+```
+
+### Rollback
+
+```bash
+helm history products-dev          # list all revisions
+helm rollback products-dev 1       # roll back to revision 1
 ```
 
 ### Uninstall
 
 ```bash
-helm uninstall products
+helm uninstall products-dev
+helm uninstall products-prod
 ```

@@ -1,0 +1,8 @@
+replicaCount: 1
+
+image:
+  tag: jvm
+  pullPolicy: Never
+
+service:
+  type: NodePort
