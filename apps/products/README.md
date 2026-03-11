@@ -26,8 +26,8 @@ pre-processes beans and proxies at build time so the native compilation succeeds
 ```bash
 # From apps/products/
 docker build -t products:latest .
-#docker build -f Dockerfile-jvm -t products:jvm .
-#docker build -f Dockerfile-aot -t products:aot .        
+#docker build -f ./docker/Dockerfile-jvm -t products:jvm .
+#docker build -f ./docker/Dockerfile-aot -t products:aot .        
 
 docker run -p 8080:8080 products:latest
 ```
@@ -46,3 +46,60 @@ layer on subsequent builds when only source code changes.
 
 By default the native binary is dynamically linked against glibc. To use a `scratch` base image instead, add
 `--static --libc=musl` to the native compile args and switch to a musl-based build image.
+
+## Deploying to Minikube
+
+Kubernetes manifests live in `k8s/` — a `Deployment` and a `Service`.
+
+Key decisions in the manifests:
+
+- **`imagePullPolicy: Never`** — uses the locally built image instead of pulling from Docker Hub
+- **`readinessProbe`** — Kubernetes waits for `GET /products` to succeed before routing traffic to the pod
+
+### Deploy
+
+**1. Point Docker to Minikube's daemon:**
+
+```bash
+ #Git Bash
+ eval $(minikube docker-env)
+ 
+ #Windows Power Shell
+ minikube docker-env | Invoke-Expression
+```
+
+**2. Build the image inside Minikube:**
+
+```bash
+# From apps/products/
+docker build -f ./docker/Dockerfile-jvm -t products:jvm .
+```
+
+**3. Apply the manifests:**
+
+```bash
+kubectl apply -f k8s/
+```
+
+**4. Wait for the pod to be ready:**
+
+```bash
+kubectl get pods -w
+# Wait until STATUS = Running and READY = 1/1
+```
+
+**5. Access the service (port forwarding):**
+
+```bash
+minikube service products --url
+curl http://<minikube-ip>:<port>/products
+```
+
+### Useful commands
+
+```bash
+kubectl get pods                  # list pods
+kubectl logs <pod-name>           # app logs
+kubectl describe pod <pod-name>   # debug a failing pod
+kubectl delete -f k8s/            # tear everything down
+```
