@@ -1,14 +1,14 @@
 apiVersion: security.istio.io/v1beta1
 kind: AuthorizationPolicy
 metadata:
-  name: {{ .Release.Name }}-deny-no-api-key
+  name: {{ .Release.Name }}-allow-api-key
   namespace: {{ .Release.Namespace }}
 spec:
   selector:
     matchLabels:
       app: {{ .Release.Name }}
-  action: DENY
+  action: ALLOW
   rules:
     - when:
         - key: request.headers[x-api-key]
-          notValues: ["{{ .Values.apiKey }}"]
+          values: ["{{ .Values.apiKey }}"]
