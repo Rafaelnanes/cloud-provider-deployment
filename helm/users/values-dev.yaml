@@ -1,0 +1,17 @@
+replicaCount: 1
+
+image:
+  tag: jvm
+  pullPolicy: Never
+
+service:
+  type: NodePort
+
+apiKey: dev-secret-key
+
+config:
+  envInfo: dev
+  serverPort: 8080
+  productsUrl: http://products-dev:8080
+  productsApiKey: dev-secret-key
+

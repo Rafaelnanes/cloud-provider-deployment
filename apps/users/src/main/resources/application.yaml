@@ -5,9 +5,11 @@ spring:
 service:
   envInfo: ${ENV_INFO}
   productsUrl: ${PRODUCTS_URL}
+  x-api-key: ${PRODUCTS_API_KEY}
 
 server.port: ${SERVER_PORT}
 
 logging:
   level:
-    com.user: ${LOG_LEVEL:DEBUG}
+    root: ${LOG_LEVEL_ROOT:INFO}
+    com.user: ${LOG_LEVEL_APP:DEBUG}

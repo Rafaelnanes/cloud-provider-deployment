@@ -5,5 +5,7 @@ metadata:
 data:
   ENV_INFO: {{ .Values.config.envInfo }}
   SERVER_PORT: {{ .Values.config.serverPort | quote }}
+  PRODUCTS_URL: {{ .Values.config.productsUrl }}
+  PRODUCTS_API_KEY: {{ .Values.config.productsApiKey }}
   LOG_LEVEL_ROOT: {{ .Values.config.logLevelRoot }}
   LOG_LEVEL_APP: {{ .Values.config.logLevelApp }}

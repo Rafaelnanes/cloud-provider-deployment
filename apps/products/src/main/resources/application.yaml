@@ -6,6 +6,7 @@ service.envInfo: ${ENV_INFO}
 
 logging:
   level:
-    com.product: ${LOG_LEVEL:DEBUG}
+    root: ${LOG_LEVEL_ROOT:INFO}
+    com.product: ${LOG_LEVEL_APP:DEBUG}
 
 server.port: ${SERVER_PORT}

@@ -9,8 +9,12 @@ public class ProductsClient {
 
   private final RestClient restClient;
 
-  public ProductsClient(@Value("${service.productsUrl}") String productsUrl) {
-    this.restClient = RestClient.builder().baseUrl(productsUrl).build();
+  public ProductsClient(@Value("${service.productsUrl}") String productsUrl,
+                        @Value("${service.x-api-key}") String apiKey) {
+    this.restClient = RestClient.builder()
+        .baseUrl(productsUrl)
+        .defaultHeader("x-api-key", apiKey)
+        .build();
   }
 
   public Product getById(Integer id) {

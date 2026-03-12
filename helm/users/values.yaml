@@ -1,7 +1,7 @@
 replicaCount: 1
 
 image:
-  name: products
+  name: users
   tag: jvm
   pullPolicy: Never
 
@@ -10,7 +10,7 @@ service:
   port: 8080
 
 readinessProbe:
-  path: /products
+  path: /users
   initialDelaySeconds: 5
   periodSeconds: 5
 
@@ -20,5 +20,8 @@ apiKey: changeme
 config:
   envInfo: default
   serverPort: 8080
+  productsUrl: http://products-dev:8080
+  productsApiKey: changeme
+
   logLevelRoot: INFO
   logLevelApp: DEBUG

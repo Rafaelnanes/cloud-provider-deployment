@@ -31,27 +31,52 @@ local development to a running cloud environment.
 
 ## Makefile
 
-A root `Makefile` is provided to automate common tasks. Run `make` to see all available targets.
+A root `Makefile` automates all tasks for both apps. Run `make` to list available targets.
 
-| Target            | Description                                           |
-|-------------------|-------------------------------------------------------|
-| `setup`           | Run `setup-istio` then `setup-namespaces`             |
-| `setup-istio`     | Install Istio with ingress gateway                    |
-| `setup-namespaces`| Create and label `dev`/`prod` namespaces              |
-| `build`           | Build `products:jvm` Docker image inside Minikube     |
-| `deploy`          | Build and deploy Helm release (`NAMESPACE=dev` default)|
-| `verify`          | Send test request to the ingress gateway              |
-| `rollback`        | Roll back the Helm release to the previous revision   |
-| `clean`           | Uninstall the Helm release from `NAMESPACE`           |
+### Variables
 
-**Override `NAMESPACE` at runtime:**
+| Variable    | Default    | Options             |
+|-------------|------------|---------------------|
+| `APP`       | `products` | `products`, `users` |
+| `NAMESPACE` | `dev`      | `dev`, `prod`       |
+| `VERIFY_URL`| *(set manually)* | HTTP URL from minikube tunnel |
+
+### Targets
+
+| Target            | Description                                              |
+|-------------------|----------------------------------------------------------|
+| `setup`           | Run `setup-istio` then `setup-namespaces`                |
+| `setup-istio`     | Install Istio with ingress gateway                       |
+| `setup-namespaces`| Create and label `dev`/`prod` namespaces                 |
+| `build`           | Build `APP:jvm` Docker image inside Minikube             |
+| `deploy`          | Build and deploy Helm release for `APP` to `NAMESPACE`   |
+| `deploy-all`      | Deploy both `products` and `users` to `NAMESPACE`        |
+| `verify`          | Send test request to `VERIFY_URL/rbn/APP`                |
+| `rollback`        | Roll back the Helm release for `APP`                     |
+| `clean`           | Uninstall the Helm release for `APP` from `NAMESPACE`    |
+| `clean-all`       | Uninstall both `products` and `users` from `NAMESPACE`   |
+
+### Examples
 
 ```bash
-make deploy NAMESPACE=prod
-make verify NAMESPACE=prod
-```
+# First-time cluster setup
+make setup
 
-> `verify` requires `minikube service istio-ingressgateway -n istio-system --url` to be running in a separate terminal first. Set `VERIFY_URL` to the HTTP URL it prints.
+# Build and deploy a single app
+make deploy APP=products NAMESPACE=dev
+make deploy APP=users NAMESPACE=dev
+
+# Deploy both apps at once
+make deploy-all NAMESPACE=dev
+
+# Verify (run minikube tunnel in a separate terminal first, then set VERIFY_URL)
+make verify APP=products VERIFY_URL=http://127.0.0.1:<port>
+make verify APP=users VERIFY_URL=http://127.0.0.1:<port>
+
+# Rollback and cleanup
+make rollback APP=users NAMESPACE=dev
+make clean-all NAMESPACE=dev
+```
 
 ## Project Structure
 

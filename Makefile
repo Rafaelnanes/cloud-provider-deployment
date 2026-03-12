@@ -1,21 +1,35 @@
-HELM_CHART := ./helm/products
+APP        := products
 NAMESPACE  := dev
+HELM_CHART := ./helm/$(APP)
 VERIFY_URL := http://127.0.0.1:64537
 
 .PHONY: build deploy rollback verify clean setup-namespaces setup-istio setup help
 
 help:
-	@echo "Usage: make <target>"
+	@echo "Usage: make <target> [APP=products|users] [NAMESPACE=dev|prod]"
 	@echo ""
-	@echo "Targets:"
-	@echo "  setup            Run setup-istio then setup-namespaces"
-	@echo "  setup-istio      Install Istio with ingress gateway"
-	@echo "  setup-namespaces Create and label dev/prod namespaces"
-	@echo "  build            Build products:jvm Docker image in Minikube"
-	@echo "  deploy           Build and deploy Helm release to NAMESPACE (default: dev)"
-	@echo "  verify           Send test request to the ingress gateway"
-	@echo "  rollback         Roll back the Helm release to the previous revision"
-	@echo "  clean            Uninstall the Helm release from NAMESPACE"
+	@echo "Defaults: APP=$(APP)  NAMESPACE=$(NAMESPACE)"
+	@echo ""
+	@echo "Setup:"
+	@echo "  setup              Run setup-istio then setup-namespaces"
+	@echo "  setup-istio        Install Istio with ingress gateway"
+	@echo "  setup-namespaces   Create and label dev/prod namespaces"
+	@echo ""
+	@echo "Build & Deploy:"
+	@echo "  build              Build APP:jvm Docker image in Minikube"
+	@echo "  deploy             Build and deploy APP to NAMESPACE"
+	@echo "  deploy-all         Build and deploy all apps to NAMESPACE"
+	@echo ""
+	@echo "Utilities:"
+	@echo "  verify             Send test request to VERIFY_URL/rbn/APP"
+	@echo "  rollback           Roll back APP release to previous revision"
+	@echo "  clean              Uninstall APP release from NAMESPACE"
+	@echo "  clean-all          Uninstall all releases from NAMESPACE"
+	@echo ""
+	@echo "Examples:"
+	@echo "  make deploy APP=users NAMESPACE=dev"
+	@echo "  make deploy-all NAMESPACE=prod"
+	@echo "  make verify APP=products VERIFY_URL=http://127.0.0.1:<port>"
 
 # Phase 1 - Install required components
 
@@ -33,32 +47,40 @@ setup-istio:
 setup: setup-istio setup-namespaces
 	@echo "==> Cluster is ready."
 
-# Phase 2 - Build product application
+# Phase 2 - Build and deploy
 
 build:
-	@echo "==> Env: '$(NAMESPACE)' -> Pointing Docker to Minikube daemon and building products:jvm image..."
-	@eval $(minikube docker-env) && docker build -f ./apps/products/docker/Dockerfile-jvm -t products:jvm ./apps/products
+	@echo "==> [$(APP)] Pointing Docker to Minikube daemon and building $(APP):jvm image..."
+	@eval $(minikube docker-env) && docker build -f ./apps/$(APP)/docker/Dockerfile-jvm -t $(APP):jvm ./apps/$(APP)
 
 deploy: build
-	@echo "==> Deploying Helm release to namespace '$(NAMESPACE)'..."
-	helm upgrade --install products-$(NAMESPACE) $(HELM_CHART) \
+	@echo "==> [$(APP)] Deploying Helm release to namespace '$(NAMESPACE)'..."
+	helm upgrade --install $(APP)-$(NAMESPACE) $(HELM_CHART) \
 		-f $(HELM_CHART)/values.yaml \
 		-f $(HELM_CHART)/values-$(NAMESPACE).yaml \
 		-n $(NAMESPACE)
 	@echo "==> Waiting for rollout to complete..."
-	kubectl rollout status deployment/products-$(NAMESPACE) -n $(NAMESPACE)
+	kubectl rollout status deployment/$(APP)-$(NAMESPACE) -n $(NAMESPACE)
 
-## Phase 3 - Utilities
+deploy-all:
+	$(MAKE) deploy APP=products NAMESPACE=$(NAMESPACE)
+	$(MAKE) deploy APP=users NAMESPACE=$(NAMESPACE)
+
+# Phase 3 - Utilities
 
 verify:
-	echo "!! Make sure to run previously: minikube service istio-ingressgateway -n istio-system --url"; \
-	echo "==> Sending test request to $VERIFY_URL/rbn/products..."; \
-	curl -H "X-API-KEY: $(NAMESPACE)-secret-key" $(VERIFY_URL)/rbn/products
+	@echo "!! Make sure to run previously: minikube service istio-ingressgateway -n istio-system --url"
+	@echo "==> [$(APP)] Sending test request to $(VERIFY_URL)/rbn/$(APP)..."
+	curl -H "X-API-KEY: $(NAMESPACE)-secret-key" $(VERIFY_URL)/rbn/$(APP)
 
 rollback:
-	@echo "==> Rolling back products-$(NAMESPACE) to previous revision in namespace '$(NAMESPACE)'..."
-	helm rollback products-$(NAMESPACE) -n $(NAMESPACE)
+	@echo "==> [$(APP)] Rolling back $(APP)-$(NAMESPACE) in namespace '$(NAMESPACE)'..."
+	helm rollback $(APP)-$(NAMESPACE) -n $(NAMESPACE)
 
 clean:
-	@echo "==> Uninstalling products-$(NAMESPACE) from namespace '$(NAMESPACE)'..."
-	helm uninstall products-$(NAMESPACE) -n $(NAMESPACE)
+	@echo "==> [$(APP)] Uninstalling $(APP)-$(NAMESPACE) from namespace '$(NAMESPACE)'..."
+	helm uninstall $(APP)-$(NAMESPACE) -n $(NAMESPACE)
+
+clean-all:
+	$(MAKE) clean APP=products NAMESPACE=$(NAMESPACE)
+	$(MAKE) clean APP=users NAMESPACE=$(NAMESPACE)

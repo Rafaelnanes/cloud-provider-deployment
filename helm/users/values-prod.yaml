@@ -1,0 +1,17 @@
+replicaCount: 3
+
+image:
+  tag: jvm
+  pullPolicy: Never
+
+service:
+  type: NodePort
+
+apiKey: prod-secret-key
+
+config:
+  envInfo: prod
+  serverPort: 8080
+  productsUrl: http://products-prod:8080
+  productsApiKey: prod-secret-key
+
