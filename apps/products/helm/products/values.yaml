@@ -15,4 +15,4 @@ readinessProbe:
   periodSeconds: 5
 
 config:
-  exampleValue: default
+  envInfo: default

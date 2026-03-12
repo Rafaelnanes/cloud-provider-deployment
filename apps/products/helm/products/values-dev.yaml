@@ -8,4 +8,4 @@ service:
   type: NodePort
 
 config:
-  exampleValue: dev
+  envInfo: dev

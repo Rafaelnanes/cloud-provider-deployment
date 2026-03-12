@@ -12,17 +12,17 @@ import java.util.List;
 public class ProductsController {
 
   private final List<Product> ALL_PRODUCTS = List.of(new Product(1, "bag"), new Product(2, "pencil"));
-  @Value("${service.exampleValue}")
-  private String exampleValue;
+  @Value("${service.envInfo}")
+  private String envInfo;
 
   @GetMapping
   public List<Product> getAllProducts() {
     return ALL_PRODUCTS;
   }
 
-  @GetMapping("/example-value")
-  public String getExampleValue() {
-    return exampleValue;
+  @GetMapping("/env-info")
+  public String getEnvInfo() {
+    return envInfo;
   }
 
 }

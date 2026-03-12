@@ -2,4 +2,4 @@ spring:
   application:
     name: products
 
-service.exampleValue: ${EXAMPLE_VALUE}
+service.envInfo: ${ENV_INFO}

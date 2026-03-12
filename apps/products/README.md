@@ -142,7 +142,7 @@ helm/products/
 ├── values-dev.yaml         # dev overrides (NodePort, 1 replica, local image)
 ├── values-prod.yaml        # prod overrides (LoadBalancer, 3 replicas, Always pull)
 └── templates/
-    ├── configmap.yaml      # injects env vars (e.g. EXAMPLE_VALUE) per environment
+    ├── configmap.yaml      # injects env vars (e.g. ENV_INFO) per environment
     ├── deployment.yaml     # uses envFrom to consume the ConfigMap
     └── service.yaml
 ```
