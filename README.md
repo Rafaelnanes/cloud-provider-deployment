@@ -13,9 +13,10 @@ A learning project focused on deploying Java Spring Boot applications to a cloud
     3. [Phase 3 — Package with Helm](#phase-3--package-with-helm)
     4. [Phase 4 — Secrets Management](#phase-4--secrets-management-with-kubernetes-secrets-and-vault)
     5. [Phase 5 — Service Mesh with Istio](#phase-5--service-mesh-with-istio)
-    6. [Phase 6 — Provision Cloud Infrastructure](#phase-6--provision-cloud-infrastructure)
-    7. [Phase 7 — Deploy to Cloud](#phase-7--deploy-to-cloud)
-    8. [Phase 8 — Improvements](#phase-8--improvements-stretch-goals)
+    6. [Phase 6 — RBAC & IAM](#phase-6--rbac--iam)
+    7. [Phase 7 — Provision Cloud Infrastructure](#phase-7--provision-cloud-infrastructure)
+    8. [Phase 8 — Deploy to Cloud](#phase-8--deploy-to-cloud)
+    9. [Phase 9 — Improvements](#phase-9--improvements-stretch-goals)
 - [Tech Stack](#tech-stack)
 
 ## Pending Checklist
@@ -35,26 +36,26 @@ A root `Makefile` automates all tasks for both apps. Run `make` to list availabl
 
 ### Variables
 
-| Variable    | Default    | Options             |
-|-------------|------------|---------------------|
-| `APP`       | `products` | `products`, `users` |
-| `NAMESPACE` | `dev`      | `dev`, `prod`       |
-| `VERIFY_URL`| *(set manually)* | HTTP URL from minikube tunnel |
+| Variable     | Default          | Options                       |
+|--------------|------------------|-------------------------------|
+| `APP`        | `products`       | `products`, `users`           |
+| `NAMESPACE`  | `dev`            | `dev`, `prod`                 |
+| `VERIFY_URL` | *(set manually)* | HTTP URL from minikube tunnel |
 
 ### Targets
 
-| Target            | Description                                              |
-|-------------------|----------------------------------------------------------|
-| `setup`           | Run `setup-istio` then `setup-namespaces`                |
-| `setup-istio`     | Install Istio with ingress gateway                       |
-| `setup-namespaces`| Create and label `dev`/`prod` namespaces                 |
-| `build`           | Build `APP:jvm` Docker image inside Minikube             |
-| `deploy`          | Build and deploy Helm release for `APP` to `NAMESPACE`   |
-| `deploy-all`      | Deploy both `products` and `users` to `NAMESPACE`        |
-| `verify`          | Send test request to `VERIFY_URL/rbn/APP`                |
-| `rollback`        | Roll back the Helm release for `APP`                     |
-| `clean`           | Uninstall the Helm release for `APP` from `NAMESPACE`    |
-| `clean-all`       | Uninstall both `products` and `users` from `NAMESPACE`   |
+| Target             | Description                                            |
+|--------------------|--------------------------------------------------------|
+| `setup`            | Run `setup-istio` then `setup-namespaces`              |
+| `setup-istio`      | Install Istio with ingress gateway                     |
+| `setup-namespaces` | Create and label `dev`/`prod` namespaces               |
+| `build`            | Build `APP:jvm` Docker image inside Minikube           |
+| `deploy`           | Build and deploy Helm release for `APP` to `NAMESPACE` |
+| `deploy-all`       | Deploy both `products` and `users` to `NAMESPACE`      |
+| `verify`           | Send test request to `VERIFY_URL/rbn/APP`              |
+| `rollback`         | Roll back the Helm release for `APP`                   |
+| `clean`            | Uninstall the Helm release for `APP` from `NAMESPACE`  |
+| `clean-all`        | Uninstall both `products` and `users` from `NAMESPACE` |
 
 ### Examples
 
@@ -93,64 +94,73 @@ learning path.
 
 ### Phase 1 — Containerize the Application
 
-1. Write a `Dockerfile` for the `products` Spring Boot app
-2. Build and run the container locally
-3. Understand multi-stage builds (build stage with Gradle, runtime stage with JRE)
-4. Push the image to a container registry (Docker Hub or cloud provider registry)
+- [x] 1 - Write a `Dockerfile` for the `products` Spring Boot app
+- [x] 2 - Build and run the container locally
+- [x] 3 - Understand multi-stage builds (build stage with Gradle, runtime stage with JRE)
+- [x] 4 - Push the image to a container registry (Docker Hub or cloud provider registry)
 
 ### Phase 2 — Deploy to Minikube (Local Kubernetes)
 
-1. Start a local Minikube cluster
-2. Write Kubernetes manifests (`Deployment`, `Service`) for the `products` app
-3. Build the image into Minikube's Docker daemon
-4. Apply manifests with `kubectl` and validate `GET /products`
+- [x] 1 - Start a local Minikube cluster
+- [x] 2 - Write Kubernetes manifests (`Deployment`, `Service` - for the `products` app
+- [x] 3 - Build the image into Minikube's Docker daemon
+- [x] 4 - Apply manifests with `kubectl` and validate `GET /products`
 
 ### Phase 3 — Package with Helm
 
-1. Understand Helm concepts: charts, templates, values, releases
-2. Create a Helm chart for the `products` app (wrapping the existing manifests)
-3. Use `values.yaml` to parameterize image tag, replicas, and service config
-4. Install and upgrade the release locally on Minikube with `helm install/upgrade`
-5. Use `ConfigMap` to inject environment-specific config (e.g. log level, app properties)
+- [x] 1 - Understand Helm concepts: charts, templates, values, releases
+- [x] 2 - Create a Helm chart for the `products` app (wrapping the existing manifests)
+- [x] 3 - Use `values.yaml` to parameterize image tag, replicas, and service config
+- [x] 4 - Install and upgrade the release locally on Minikube with `helm install/upgrade`
+- [x] 5 - Use `ConfigMap` to inject environment-specific config (e.g. log level, app properties)
 
 ### Phase 4 — Secrets Management with Kubernetes Secrets and Vault
 
-1. Understand the difference between `ConfigMap` and `Secret`
-2. Create Kubernetes `Secret` resources for sensitive values (passwords, tokens, API keys)
-3. Consume secrets as environment variables in the `Deployment`
-4. Install HashiCorp Vault on Minikube
-5. Understand Vault concepts: secrets engine, policies, AppRole authentication
-6. Integrate Vault with Kubernetes using the Vault Agent Injector (sidecar)
-7. Migrate sensitive config from Kubernetes `Secret` to Vault
+- [ ] 1 - Understand the difference between `ConfigMap` and `Secret`
+- [ ] 2 - Create Kubernetes `Secret` resources for sensitive values (passwords, tokens, API keys)
+- [ ] 3 - Consume secrets as environment variables in the `Deployment`
+- [ ] 4 - Install HashiCorp Vault on Minikube
+- [ ] 5 - Understand Vault concepts: secrets engine, policies, AppRole authentication
+- [ ] 6 - Integrate Vault with Kubernetes using the Vault Agent Injector (sidecar)
+- [ ] 7 - Migrate sensitive config from Kubernetes `Secret` to Vault
 
 ### Phase 5 — Service Mesh with Istio
 
-1. Install Istio on Minikube (`istioctl install`)
-2. Enable sidecar injection on the `products` namespace
-3. Understand core Istio resources: `VirtualService`, `DestinationRule`, `Gateway`
-4. Expose `GET /products` through an Istio `Gateway` + `VirtualService`
-5. Explore traffic management: retries, timeouts, and fault injection for testing
-6. Test canary deployment using `DestinationRule` subsets and `VirtualService` traffic splitting
-7. Observe traffic with Kiali, Jaeger (tracing), and Prometheus/Grafana (metrics)
+- [x] 1 - Install Istio on Minikube (`istioctl install`)
+- [x] 2 - Enable sidecar injection on the `products` namespace
+- [x] 3 - Understand core Istio resources: `VirtualService`, `DestinationRule`, `Gateway`
+- [x] 4 - Expose `GET /products` through an Istio `Gateway` + `VirtualService`
+- [ ] 5 - Explore traffic management: retries, timeouts, and fault injection for testing
+- [ ] 6 - Test canary deployment using `DestinationRule` subsets and `VirtualService` traffic splitting
+- [ ] 7 - Observe traffic with Kiali, Jaeger (tracing), and Prometheus/Grafana (metrics)
 
-### Phase 6 — Provision Cloud Infrastructure
+### Phase 6 — RBAC & IAM
 
-1. Choose a cloud provider (AWS, GCP, or Azure)
-2. Provision a managed Kubernetes cluster (e.g., EKS, GKE, AKS)
-3. Set up a container registry on the chosen provider
-4. Configure IAM roles / service accounts with least-privilege access for deployments
+- [ ] 1 - Create a `ServiceAccount` per app (`products`, `users`) and attach it to each `Deployment`
+- [ ] 2 - Define `Role` resources scoped to each namespace — allow only the verbs each app needs
+- [ ] 3 - Bind roles to service accounts with `RoleBinding`
+- [ ] 4 - Move `PRODUCTS_API_KEY` from `ConfigMap` to a `Secret`; restrict read access to `users` only
+- [ ] 5 - Verify `products` cannot access the `users` secret (test with `kubectl auth can-i`)
+- [ ] 6 - Confirm namespace isolation: roles in `dev` do not apply in `prod`
 
-### Phase 7 — Deploy to Cloud
+### Phase 7 — Provision Cloud Infrastructure
 
-1. Push the image to the cloud registry
-2. Apply manifests/Helm chart to the cloud cluster
-3. Verify `GET /products` on the cloud
+- [ ] 1 - Choose a cloud provider (AWS, GCP, or Azure)
+- [ ] 2 - Provision a managed Kubernetes cluster (e.g., EKS, GKE, AKS)
+- [ ] 3 - Set up a container registry on the chosen provider
+- [ ] 4 - Configure IAM roles / service accounts with least-privilege access for deployments
 
-### Phase 8 — Improvements (stretch goals)
+### Phase 8 — Deploy to Cloud
 
-1. Add health checks and rollback on failed deployments
-2. Use Infrastructure as Code (Terraform or cloud-native IaC) to provision resources
-3. Add a staging environment and promote builds from staging to production
+- [ ] 1 - Push the image to the cloud registry
+- [ ] 2 - Apply manifests/Helm chart to the cloud cluster
+- [ ] 3 - Verify `GET /products` on the cloud
+
+### Phase 9 — Improvements (stretch goals)
+
+- [ ] 1 - Add health checks and rollback on failed deployments
+- [ ] 2 - Use Infrastructure as Code (Terraform or cloud-native IaC - to provision resources
+- [ ] 3 - Add a staging environment and promote builds from staging to production
 
 ## Tech Stack
 

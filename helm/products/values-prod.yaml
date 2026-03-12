@@ -5,7 +5,7 @@ image:
   pullPolicy: Never
 
 service:
-  type: NodePort
+  type: ClusterIP
 
 apiKey: prod-secret-key
 
