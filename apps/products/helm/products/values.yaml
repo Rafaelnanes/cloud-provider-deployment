@@ -15,6 +15,7 @@ readinessProbe:
   periodSeconds: 5
 
 domainPrefix: rbn
+apiKey: changeme
 
 config:
   envInfo: default

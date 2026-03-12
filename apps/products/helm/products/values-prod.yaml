@@ -7,5 +7,7 @@ image:
 service:
   type: NodePort
 
+apiKey: prod-secret-key
+
 config:
   envInfo: prod

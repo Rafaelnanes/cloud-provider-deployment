@@ -62,6 +62,22 @@ pod --> Client : response
 @enduml
 ```
 
+## Resource Hierarchy
+
+Each Istio resource answers a different question:
+
+| Resource          | Level               | Question                                                               |
+|-------------------|---------------------|------------------------------------------------------------------------|
+| `Gateway`         | Cluster entry point | What traffic do I accept? (port, protocol, host)                       |
+| `VirtualService`  | Routing             | Where does it go? (path, headers, weights, retries)                    |
+| `DestinationRule` | Workload            | How do I talk to what's there? (pods, load balancing, circuit breaker) |
+
+```
+Gateway          → cluster entry point (port, protocol, host)
+VirtualService   → routing rules (path, headers, weights, retries)
+DestinationRule  → workload policies (which pods, how to talk to them)
+```
+
 ## Gateway & VirtualService
 
 Defined in `helm/products/templates/gateway.yaml`.

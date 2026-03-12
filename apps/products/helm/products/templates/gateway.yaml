@@ -33,3 +33,13 @@ spec:
             host: {{ .Release.Name }}
             port:
               number: {{ .Values.service.port }}
+---
+apiVersion: networking.istio.io/v1beta1
+kind: DestinationRule
+metadata:
+  name: {{ .Release.Name }}-dr
+spec:
+  host: {{ .Release.Name }}
+  trafficPolicy:
+    loadBalancer:
+      simple: ROUND_ROBIN
