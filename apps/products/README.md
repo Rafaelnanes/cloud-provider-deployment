@@ -8,9 +8,6 @@ use in k8
   - [Build and run](#build-and-run)
   - [Layer caching](#layer-caching)
   - [Going even smaller (optional)](#going-even-smaller-optional)
-- [Deploying to Minikube](#deploying-to-minikube)
-  - [Deploy](#deploy)
-  - [Useful commands](#useful-commands)
 - [Deploying with Helm](#deploying-with-helm)
   - [Chart structure](#chart-structure)
   - [Install](#install)
@@ -65,67 +62,7 @@ layer on subsequent builds when only source code changes.
 By default the native binary is dynamically linked against glibc. To use a `scratch` base image instead, add
 `--static --libc=musl` to the native compile args and switch to a musl-based build image.
 
-## Deploying to Minikube
-
-Kubernetes manifests live in `k8s/` — a `Deployment` and a `Service`.
-
-Key decisions in the manifests:
-
-- **`imagePullPolicy: Never`** — uses the locally built image instead of pulling from Docker Hub
-- **`readinessProbe`** — Kubernetes waits for `GET /products` to succeed before routing traffic to the pod
-
-### Deploy
-
-**1. Point Docker to Minikube's daemon:**
-
-```bash
- #Git Bash
- eval $(minikube docker-env)
- 
- #Windows Power Shell
- minikube docker-env | Invoke-Expression
-```
-
-**2. Build the image inside Minikube:**
-
-```bash
-# From apps/products/
-docker build -f ./docker/Dockerfile-jvm -t products:jvm .
-```
-
-**3. Apply the manifests:**
-
-```bash
-kubectl apply -f k8s/ -n dev
-```
-
-**4. Wait for the pod to be ready:**
-
-```bash
-kubectl get pods -n dev -w
-# Wait until STATUS = Running and READY = 1/1
-```
-
-**5. Access the service (port forwarding):**
-
-```bash
-minikube service products -n dev --url
-curl http://<minikube-ip>:<port>/products
-```
-
-### Useful commands
-
-```bash
-kubectl get pods -n dev                  # list pods
-kubectl logs <pod-name> -n dev           # app logs
-kubectl describe pod <pod-name> -n dev   # debug a failing pod
-kubectl delete -f k8s/ -n dev            # tear everything down
-```
-
 ## Deploying with Helm
-
-> **Note:** From this point on the `k8s/` folder is no longer needed. Helm replaces the raw manifests entirely.
-> You can delete it and run `kubectl delete -f k8s/` to clean up any resources it created before switching.
 
 The Helm chart lives in `helm/products/` at the project root and wraps the same `Deployment` and `Service` as the raw manifests,
 but parameterized via `values.yaml`.
@@ -152,12 +89,6 @@ helm/products/
 Helm merges them in order, with later files taking precedence.
 
 ### Install
-
-Remove raw manifests first to avoid conflicts:
-
-```bash
-kubectl delete -f k8s/ -n dev
-```
 
 Install for dev (Minikube):
 
