@@ -33,6 +33,35 @@ helm upgrade --install products-dev ./helm/products -f ./helm/products/values.ya
 kubectl get pods -n dev
 ```
 
+## Traffic Flow
+
+```plantuml
+@startuml
+skinparam sequenceArrowThickness 2
+skinparam sequenceBoxBackgroundColor #f5f5f5
+
+actor Client
+box "Istio Ingress" #LightBlue
+  participant "IngressGateway" as gw
+  participant "Gateway\n(accepts traffic)" as g
+end box
+box "Routing" #LightYellow
+  participant "VirtualService\n(path matching\nretries / timeouts\nfault injection)" as vs
+end box
+box "Policy" #LightGreen
+  participant "DestinationRule\n(load balancing\nconnection pool\ncircuit breaker\nmTLS)" as dr
+end box
+participant "Pod" as pod
+
+Client -> gw : HTTP :80 /products
+gw -> g : forward
+g -> vs : matched by host
+vs -> dr : route to destination + subset
+dr -> pod : apply policies
+pod --> Client : response
+@enduml
+```
+
 ## Gateway & VirtualService
 
 Defined in `helm/products/templates/gateway.yaml`.
@@ -47,6 +76,7 @@ minikube service istio-ingressgateway -n istio-system --url
 ```
 
 Minikube exposes 3 ports:
+
 - Port 1 → HTTP (80)
 - Port 2 → HTTPS (443)
 - Port 3 → Status/health (15021)

@@ -25,7 +25,9 @@ spec:
   http:
     - match:
         - uri:
-            prefix: /products
+            prefix: /{{ .Values.domainPrefix }}/products
+      rewrite:
+        uri: /products
       route:
         - destination:
             host: {{ .Release.Name }}

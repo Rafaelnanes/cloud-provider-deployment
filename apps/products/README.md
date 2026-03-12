@@ -138,12 +138,13 @@ This allows installing multiple instances of the same chart side by side (e.g. s
 ```
 helm/products/
 ├── Chart.yaml              # chart metadata
-├── values.yaml             # default values (image, replicas, service, probe)
+├── values.yaml             # default values (image, replicas, service, probe, domainPrefix)
 ├── values-dev.yaml         # dev overrides (NodePort, 1 replica, local image)
 ├── values-prod.yaml        # prod overrides (LoadBalancer, 3 replicas, Always pull)
 └── templates/
     ├── configmap.yaml      # injects env vars (e.g. ENV_INFO) per environment
     ├── deployment.yaml     # uses envFrom to consume the ConfigMap
+    ├── gateway.yaml        # Istio Gateway + VirtualService, routes /rbn/products → /products
     └── service.yaml
 ```
 
@@ -178,6 +179,10 @@ helm list -n dev                                             # shows the active 
 kubectl get pods -n dev                                      # pod should come up
 kubectl port-forward deployment/products-dev 8080:8080 -n dev
 curl http://localhost:8080/products
+
+# Via Istio ingress
+minikube service istio-ingressgateway -n istio-system --url
+curl http://127.0.0.1:<http-port>/rbn/products
 ```
 
 ### Upgrade

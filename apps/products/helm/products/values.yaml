@@ -14,5 +14,7 @@ readinessProbe:
   initialDelaySeconds: 5
   periodSeconds: 5
 
+domainPrefix: rbn
+
 config:
   envInfo: default
