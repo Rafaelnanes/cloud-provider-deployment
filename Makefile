@@ -60,5 +60,5 @@ rollback:
 	helm rollback products-$(NAMESPACE) -n $(NAMESPACE)
 
 clean:
-	@echo "==> Uninstalling products-dev from namespace '$(NAMESPACE)'..."
+	@echo "==> Uninstalling products-$(NAMESPACE) from namespace '$(NAMESPACE)'..."
 	helm uninstall products-$(NAMESPACE) -n $(NAMESPACE)
