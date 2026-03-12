@@ -127,7 +127,7 @@ kubectl delete -f k8s/ -n dev            # tear everything down
 > **Note:** From this point on the `k8s/` folder is no longer needed. Helm replaces the raw manifests entirely.
 > You can delete it and run `kubectl delete -f k8s/` to clean up any resources it created before switching.
 
-The Helm chart lives in `helm/products/` and wraps the same `Deployment` and `Service` as the raw manifests,
+The Helm chart lives in `helm/products/` at the project root and wraps the same `Deployment` and `Service` as the raw manifests,
 but parameterized via `values.yaml`.
 
 Key concept — `{{ .Release.Name }}` is used for all resource names instead of hardcoding `products`.
@@ -162,13 +162,14 @@ kubectl delete -f k8s/ -n dev
 Install for dev (Minikube):
 
 ```bash
-# From apps/products/
+# From project root
 helm install products-dev ./helm/products -f ./helm/products/values.yaml -f ./helm/products/values-dev.yaml -n dev
 ```
 
 Install for prod (cloud cluster):
 
 ```bash
+# From project root
 helm install products-prod ./helm/products -f ./helm/products/values.yaml -f ./helm/products/values-prod.yaml -n prod
 ```
 
@@ -188,6 +189,8 @@ curl http://127.0.0.1:<http-port>/rbn/products
 ### Upgrade
 
 ```bash
+# From project root
+
 # Dev
 helm upgrade products-dev ./helm/products -f ./helm/products/values.yaml -f ./helm/products/values-dev.yaml -n dev
 

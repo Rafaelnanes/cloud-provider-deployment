@@ -29,6 +29,30 @@ A learning project focused on deploying Java Spring Boot applications to a cloud
 Understand the end-to-end process of building, containerizing, and deploying a microservice to a cloud provider — from
 local development to a running cloud environment.
 
+## Makefile
+
+A root `Makefile` is provided to automate common tasks. Run `make` to see all available targets.
+
+| Target            | Description                                           |
+|-------------------|-------------------------------------------------------|
+| `setup`           | Run `setup-istio` then `setup-namespaces`             |
+| `setup-istio`     | Install Istio with ingress gateway                    |
+| `setup-namespaces`| Create and label `dev`/`prod` namespaces              |
+| `build`           | Build `products:jvm` Docker image inside Minikube     |
+| `deploy`          | Build and deploy Helm release (`NAMESPACE=dev` default)|
+| `verify`          | Send test request to the ingress gateway              |
+| `rollback`        | Roll back the Helm release to the previous revision   |
+| `clean`           | Uninstall the Helm release from `NAMESPACE`           |
+
+**Override `NAMESPACE` at runtime:**
+
+```bash
+make deploy NAMESPACE=prod
+make verify NAMESPACE=prod
+```
+
+> `verify` requires `minikube service istio-ingressgateway -n istio-system --url` to be running in a separate terminal first. Set `VERIFY_URL` to the HTTP URL it prints.
+
 ## Project Structure
 
 ```

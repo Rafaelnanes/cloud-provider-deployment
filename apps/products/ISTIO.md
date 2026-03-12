@@ -24,6 +24,7 @@ kubectl label namespace dev istio-injection=enabled
 **3. Deploy the app (sidecar will be auto-injected):**
 
 ```bash
+# From project root
 helm upgrade --install products-dev ./helm/products -f ./helm/products/values.yaml -f ./helm/products/values-dev.yaml -n dev
 ```
 
@@ -80,7 +81,7 @@ DestinationRule  → workload policies (which pods, how to talk to them)
 
 ## Gateway & VirtualService
 
-Defined in `helm/products/templates/gateway.yaml`.
+Defined in `helm/products/templates/gateway.yaml` (project root).
 
 - `Gateway` — listens on port 80, accepts all hosts
 - `VirtualService` — routes `/products` traffic to the products service

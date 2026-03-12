@@ -14,7 +14,7 @@ COPY settings.gradle.kts settings.gradle.kts
 RUN chmod +x gradlew && ./gradlew dependencies --no-daemon -q
 
 # Copy source and compile the native binary
-COPY src src
+COPY ./src src
 RUN ./gradlew nativeCompile --no-daemon -x test
 
 # Stage 2: Minimal runtime image (no JVM needed)
