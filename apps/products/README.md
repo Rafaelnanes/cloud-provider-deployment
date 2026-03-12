@@ -1,6 +1,24 @@
 This application is just a simple one with a simple endpoint to be used to create a jar and later the docker image to
 use in k8
 
+## Table of Contents
+
+- [Building the Docker Image](#building-the-docker-image)
+  - [How it works](#how-it-works)
+  - [Build and run](#build-and-run)
+  - [Layer caching](#layer-caching)
+  - [Going even smaller (optional)](#going-even-smaller-optional)
+- [Deploying to Minikube](#deploying-to-minikube)
+  - [Deploy](#deploy)
+  - [Useful commands](#useful-commands)
+- [Deploying with Helm](#deploying-with-helm)
+  - [Chart structure](#chart-structure)
+  - [Install](#install)
+  - [Verify](#verify)
+  - [Upgrade](#upgrade)
+  - [Rollback](#rollback)
+  - [Uninstall](#uninstall)
+
 ## Building the Docker Image
 
 The image is built using GraalVM Native Image, which AOT-compiles the application into a standalone native binary.
@@ -78,30 +96,30 @@ docker build -f ./docker/Dockerfile-jvm -t products:jvm .
 **3. Apply the manifests:**
 
 ```bash
-kubectl apply -f k8s/
+kubectl apply -f k8s/ -n dev
 ```
 
 **4. Wait for the pod to be ready:**
 
 ```bash
-kubectl get pods -w
+kubectl get pods -n dev -w
 # Wait until STATUS = Running and READY = 1/1
 ```
 
 **5. Access the service (port forwarding):**
 
 ```bash
-minikube service products --url
+minikube service products -n dev --url
 curl http://<minikube-ip>:<port>/products
 ```
 
 ### Useful commands
 
 ```bash
-kubectl get pods                  # list pods
-kubectl logs <pod-name>           # app logs
-kubectl describe pod <pod-name>   # debug a failing pod
-kubectl delete -f k8s/            # tear everything down
+kubectl get pods -n dev                  # list pods
+kubectl logs <pod-name> -n dev           # app logs
+kubectl describe pod <pod-name> -n dev   # debug a failing pod
+kubectl delete -f k8s/ -n dev            # tear everything down
 ```
 
 ## Deploying with Helm
@@ -124,7 +142,8 @@ helm/products/
 ├── values-dev.yaml         # dev overrides (NodePort, 1 replica, local image)
 ├── values-prod.yaml        # prod overrides (LoadBalancer, 3 replicas, Always pull)
 └── templates/
-    ├── deployment.yaml
+    ├── configmap.yaml      # injects env vars (e.g. EXAMPLE_VALUE) per environment
+    ├── deployment.yaml     # uses envFrom to consume the ConfigMap
     └── service.yaml
 ```
 
@@ -136,28 +155,28 @@ Helm merges them in order, with later files taking precedence.
 Remove raw manifests first to avoid conflicts:
 
 ```bash
-kubectl delete -f k8s/
+kubectl delete -f k8s/ -n dev
 ```
 
 Install for dev (Minikube):
 
 ```bash
 # From apps/products/
-helm install products-dev ./helm/products -f ./helm/products/values.yaml -f ./helm/products/values-dev.yaml
+helm install products-dev ./helm/products -f ./helm/products/values.yaml -f ./helm/products/values-dev.yaml -n dev
 ```
 
 Install for prod (cloud cluster):
 
 ```bash
-helm install products-prod ./helm/products -f ./helm/products/values.yaml -f ./helm/products/values-prod.yaml
+helm install products-prod ./helm/products -f ./helm/products/values.yaml -f ./helm/products/values-prod.yaml -n prod
 ```
 
 ### Verify
 
 ```bash
-helm list                                          # shows the active release
-kubectl get pods                                   # pod should come up
-kubectl port-forward deployment/products-dev 8080:8080    
+helm list -n dev                                             # shows the active release
+kubectl get pods -n dev                                      # pod should come up
+kubectl port-forward deployment/products-dev 8080:8080 -n dev
 curl http://localhost:8080/products
 ```
 
@@ -165,25 +184,25 @@ curl http://localhost:8080/products
 
 ```bash
 # Dev
-helm upgrade products-dev ./helm/products -f ./helm/products/values.yaml -f ./helm/products/values-dev.yaml
+helm upgrade products-dev ./helm/products -f ./helm/products/values.yaml -f ./helm/products/values-dev.yaml -n dev
 
 # Prod
-helm upgrade products-prod ./helm/products -f ./helm/products/values.yaml -f ./helm/products/values-prod.yaml
+helm upgrade products-prod ./helm/products -f ./helm/products/values.yaml -f ./helm/products/values-prod.yaml -n dev
 
 # Override a single value on the fly (e.g. bump the image tag)
-helm upgrade products-dev ./helm/products -f ./helm/products/values.yaml -f ./helm/products/values-dev.yaml --set image.tag=1.1.0
+helm upgrade products-dev ./helm/products -f ./helm/products/values.yaml -f ./helm/products/values-dev.yaml --set image.tag=1.1.0 -n dev
 ```
 
 ### Rollback
 
 ```bash
-helm history products-dev          # list all revisions
-helm rollback products-dev 1       # roll back to revision 1
+helm history products-dev -n dev          # list all revisions
+helm rollback products-dev 1 -n dev       # roll back to revision 1
 ```
 
 ### Uninstall
 
 ```bash
-helm uninstall products-dev
-helm uninstall products-prod
+helm uninstall products-dev -n dev
+helm uninstall products-prod -n dev
 ```
