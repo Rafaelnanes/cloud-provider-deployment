@@ -14,9 +14,6 @@ readinessProbe:
   initialDelaySeconds: 5
   periodSeconds: 5
 
-domainPrefix: rbn
-apiKey: changeme
-
 config:
   envInfo: default
   serverPort: 8080

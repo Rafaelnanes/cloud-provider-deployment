@@ -4,17 +4,17 @@ use in k8
 ## Table of Contents
 
 - [Building the Docker Image](#building-the-docker-image)
-  - [How it works](#how-it-works)
-  - [Build and run](#build-and-run)
-  - [Layer caching](#layer-caching)
-  - [Going even smaller (optional)](#going-even-smaller-optional)
+    - [How it works](#how-it-works)
+    - [Build and run](#build-and-run)
+    - [Layer caching](#layer-caching)
+    - [Going even smaller (optional)](#going-even-smaller-optional)
 - [Deploying with Helm](#deploying-with-helm)
-  - [Chart structure](#chart-structure)
-  - [Install](#install)
-  - [Verify](#verify)
-  - [Upgrade](#upgrade)
-  - [Rollback](#rollback)
-  - [Uninstall](#uninstall)
+    - [Chart structure](#chart-structure)
+    - [Install](#install)
+    - [Verify](#verify)
+    - [Upgrade](#upgrade)
+    - [Rollback](#rollback)
+    - [Uninstall](#uninstall)
 
 ## Building the Docker Image
 
@@ -64,7 +64,8 @@ By default the native binary is dynamically linked against glibc. To use a `scra
 
 ## Deploying with Helm
 
-The Helm chart lives in `helm/products/` at the project root and wraps the same `Deployment` and `Service` as the raw manifests,
+The Helm chart lives in `helm/products/` at the project root and wraps the same `Deployment` and `Service` as the raw
+manifests,
 but parameterized via `values.yaml`.
 
 Key concept — `{{ .Release.Name }}` is used for all resource names instead of hardcoding `products`.
@@ -110,7 +111,7 @@ helm install products-prod ./helm/products -f ./helm/products/values.yaml -f ./h
 helm list -n dev                                             # shows the active release
 kubectl get pods -n dev                                      # pod should come up
 kubectl port-forward deployment/products-dev 8080:8080 -n dev
-curl http://localhost:8080/products
+curl http://localhost:8080/rbn/dev/products
 
 # Via Istio ingress
 minikube service istio-ingressgateway -n istio-system --url

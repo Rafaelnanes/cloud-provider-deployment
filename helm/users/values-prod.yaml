@@ -7,6 +7,7 @@ image:
 service:
   type: ClusterIP
 
+domainPrefix: rbn/prod
 apiKey: prod-secret-key
 
 config:

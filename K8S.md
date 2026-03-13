@@ -4,30 +4,31 @@
 
 ### Concept Map
 
-| Concept | What it is | Where it lives | Coverable in Minikube/Kind |
-|---|---|---|---|
-| `ServiceAccount` | Identity for a pod/workload | Kubernetes | ✅ |
-| `Role` | Set of permissions scoped to a namespace | Kubernetes | ✅ |
-| `ClusterRole` | Set of permissions scoped cluster-wide | Kubernetes | ✅ |
-| `RoleBinding` | Attaches a `Role` to a `ServiceAccount` | Kubernetes | ✅ |
-| `ClusterRoleBinding` | Attaches a `ClusterRole` to a `ServiceAccount` | Kubernetes | ✅ |
-| `Secret` | Stores sensitive data inside the cluster | Kubernetes | ✅ |
-| `kubectl auth can-i` | Verify what a service account can do | Kubernetes | ✅ |
-| Namespace isolation | Roles in `dev` don't apply in `prod` | Kubernetes | ✅ |
-| GCP Service Account | Identity for a GCP workload (not K8s) | GCP IAM | ❌ |
-| GCP Roles | Predefined (`roles/viewer`) or custom permission sets | GCP IAM | ❌ |
-| IAM Policy Binding | Attaches a GCP role to a GCP service account | GCP IAM | ❌ |
-| Least Privilege | Granting only the permissions needed | Both | ✅ concept / ❌ GCP-specific |
-| Workload Identity | Links K8s `ServiceAccount` → GCP `ServiceAccount` | GCP + K8s | ❌ (GKE only) |
-| IAM Conditions | Conditional access based on resource/time/context | GCP IAM | ❌ |
-| Audit Logs | Who did what, when | GCP IAM | ❌ |
-| Secret Manager | Managed secrets service (replaces K8s `Secret`) | GCP | ❌ |
+| Concept              | What it is                                            | Where it lives | Coverable in Minikube/Kind |
+|----------------------|-------------------------------------------------------|----------------|----------------------------|
+| `ServiceAccount`     | Identity for a pod/workload                           | Kubernetes     | ✅                          |
+| `Role`               | Set of permissions scoped to a namespace              | Kubernetes     | ✅                          |
+| `ClusterRole`        | Set of permissions scoped cluster-wide                | Kubernetes     | ✅                          |
+| `RoleBinding`        | Attaches a `Role` to a `ServiceAccount`               | Kubernetes     | ✅                          |
+| `ClusterRoleBinding` | Attaches a `ClusterRole` to a `ServiceAccount`        | Kubernetes     | ✅                          |
+| `Secret`             | Stores sensitive data inside the cluster              | Kubernetes     | ✅                          |
+| `kubectl auth can-i` | Verify what a service account can do                  | Kubernetes     | ✅                          |
+| Namespace isolation  | Roles in `dev` don't apply in `prod`                  | Kubernetes     | ✅                          |
+| GCP Service Account  | Identity for a GCP workload (not K8s)                 | GCP IAM        | ❌                          |
+| GCP Roles            | Predefined (`roles/viewer`) or custom permission sets | GCP IAM        | ❌                          |
+| IAM Policy Binding   | Attaches a GCP role to a GCP service account          | GCP IAM        | ❌                          |
+| Least Privilege      | Granting only the permissions needed                  | Both           | ✅ concept / ❌ GCP-specific |
+| Workload Identity    | Links K8s `ServiceAccount` → GCP `ServiceAccount`     | GCP + K8s      | ❌ (GKE only)               |
+| IAM Conditions       | Conditional access based on resource/time/context     | GCP IAM        | ❌                          |
+| Audit Logs           | Who did what, when                                    | GCP IAM        | ❌                          |
+| Secret Manager       | Managed secrets service (replaces K8s `Secret`)       | GCP            | ❌                          |
 
 ### Key Distinctions
 
 - **Kubernetes RBAC** controls access *inside* the cluster (who can read secrets, configmaps, pods, etc.)
 - **GCP IAM** controls access *to GCP resources* (buckets, APIs, databases, etc.)
-- **Workload Identity** is the bridge — links a K8s `ServiceAccount` to a GCP `ServiceAccount` so a pod can call GCP APIs without a key file. GKE only.
+- **Workload Identity** is the bridge — links a K8s `ServiceAccount` to a GCP `ServiceAccount` so a pod can call GCP
+  APIs without a key file. GKE only.
 
 ### Helm Chart Structure
 
@@ -44,14 +45,13 @@ helm/products/templates/
     └── networkpolicy.yaml     # default-deny-all (zero trust baseline, requires Calico)
 ```
 
-
 ### Service Types & Network Access
 
-| Type | Internal | External | Notes |
-|---|---|---|---|
-| `ClusterIP` | ✅ | ❌ | Default. Use with Istio Gateway. |
-| `NodePort` | ✅ | ✅ | Via node IP + port (30000–32767) |
-| `LoadBalancer` | ✅ | ✅ | Cloud-provisioned external IP. Costs credits on GCP. |
+| Type           | Internal | External | Notes                                                |
+|----------------|----------|----------|------------------------------------------------------|
+| `ClusterIP`    | ✅        | ❌        | Default. Use with Istio Gateway.                     |
+| `NodePort`     | ✅        | ✅        | Via node IP + port (30000–32767)                     |
+| `LoadBalancer` | ✅        | ✅        | Cloud-provisioned external IP. Costs credits on GCP. |
 
 ### Internal DNS
 
@@ -115,7 +115,7 @@ kubectl auth can-i get secrets --as=system:serviceaccount:dev:users-dev -n dev
 
 # Exec into a pod to test internal DNS / network
 kubectl exec -it <pod-name> -n dev -- sh
-curl http://products-dev:8080/products
+curl http://products-dev:8080/rbn/dev/products
 
 # Check NetworkPolicy enforcement
 kubectl get networkpolicy -n dev

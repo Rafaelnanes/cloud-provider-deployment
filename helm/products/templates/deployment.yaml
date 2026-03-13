@@ -14,7 +14,7 @@ spec:
       labels:
         app: {{ .Release.Name }}
     spec:
-      serviceAccountName: {{ .Release.Name }}
+      serviceAccountName: {{ if .Values.security.rbacIam }}{{ .Release.Name }}{{ else }}default{{ end }}
       containers:
         - name: {{ .Release.Name }}
           image: "{{ .Values.image.name }}:{{ .Values.image.tag }}"

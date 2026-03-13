@@ -71,7 +71,7 @@ deploy-all:
 verify:
 	@echo "!! Make sure to run previously: minikube service istio-ingressgateway -n istio-system --url"
 	@echo "==> [$(APP)] Sending test request to $(VERIFY_URL)/rbn/$(APP)..."
-	curl -H "X-API-KEY: $(NAMESPACE)-secret-key" $(VERIFY_URL)/rbn/$(APP)
+	curl -H "X-API-KEY: $(NAMESPACE)-secret-key" $(VERIFY_URL)/rbn/$(NAMESPACE)/$(APP)
 
 rollback:
 	@echo "==> [$(APP)] Rolling back $(APP)-$(NAMESPACE) in namespace '$(NAMESPACE)'..."

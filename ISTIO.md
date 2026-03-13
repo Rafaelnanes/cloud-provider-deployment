@@ -101,7 +101,7 @@ Minikube exposes 3 ports:
 **Test:**
 
 ```bash
-curl http://127.0.0.1:<http-port>/products
+curl http://127.0.0.1:<http-port>/rbn/dev/products
 ```
 
 ## Useful commands
