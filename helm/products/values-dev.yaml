@@ -2,7 +2,7 @@ replicaCount: 1
 
 image:
   tag: jvm
-  pullPolicy: Never
+  pullPolicy: IfNotPresent
 
 service:
   type: ClusterIP

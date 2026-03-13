@@ -50,8 +50,8 @@ setup: setup-istio setup-namespaces
 # Phase 2 - Build and deploy
 
 build:
-	@echo "==> [$(APP)] Pointing Docker to Minikube daemon and building $(APP):jvm image..."
-	@eval $(minikube docker-env) && docker build -f ./apps/$(APP)/docker/Dockerfile-jvm -t $(APP):jvm ./apps/$(APP)
+	@echo "==> [$(APP)] - Building $(APP):jvm image..."
+	docker build -f ./apps/$(APP)/docker/Dockerfile-jvm -t $(APP):jvm ./apps/$(APP)
 
 deploy: build
 	@echo "==> [$(APP)] Deploying Helm release to namespace '$(NAMESPACE)'..."
