@@ -94,73 +94,95 @@ learning path.
 
 ### Phase 1 — Containerize the Application
 
-- [x] 1 - Write a `Dockerfile` for the `products` Spring Boot app
-- [x] 2 - Build and run the container locally
-- [x] 3 - Understand multi-stage builds (build stage with Gradle, runtime stage with JRE)
-- [x] 4 - Push the image to a container registry (Docker Hub or cloud provider registry)
+1. Write a `Dockerfile` for the `products` Spring Boot app ✅
+2. Build and run the container locally ✅
+3. Understand multi-stage builds (build stage with Gradle, runtime stage with JRE) ✅
+4. Push the image to a container registry (Docker Hub or cloud provider registry) ✅
 
 ### Phase 2 — Deploy to Minikube (Local Kubernetes)
 
-- [x] 1 - Start a local Minikube cluster
-- [x] 2 - Write Kubernetes manifests (`Deployment`, `Service` - for the `products` app
-- [x] 3 - Build the image into Minikube's Docker daemon
-- [x] 4 - Apply manifests with `kubectl` and validate `GET /products`
+1. Start a local Minikube cluster ✅
+2. Write Kubernetes manifests (`Deployment`, `Service` - for the `products` app ✅
+3. Build the image into Minikube's Docker daemon ✅
+4. Apply manifests with `kubectl` and validate `GET /products` ✅
 
 ### Phase 3 — Package with Helm
 
-- [x] 1 - Understand Helm concepts: charts, templates, values, releases
-- [x] 2 - Create a Helm chart for the `products` app (wrapping the existing manifests)
-- [x] 3 - Use `values.yaml` to parameterize image tag, replicas, and service config
-- [x] 4 - Install and upgrade the release locally on Minikube with `helm install/upgrade`
-- [x] 5 - Use `ConfigMap` to inject environment-specific config (e.g. log level, app properties)
+1. Understand Helm concepts: charts, templates, values, releases ✅
+2. Create a Helm chart for the `products` app (wrapping the existing manifests) ✅
+3. Use `values.yaml` to parameterize image tag, replicas, and service config ✅
+4. Install and upgrade the release locally on Minikube with `helm install/upgrade` ✅
+5. Use `ConfigMap` to inject environment-specific config (e.g. log level, app properties) ✅
 
 ### Phase 4 — Secrets Management with Kubernetes Secrets and Vault
 
-- [ ] 1 - Understand the difference between `ConfigMap` and `Secret`
-- [ ] 2 - Create Kubernetes `Secret` resources for sensitive values (passwords, tokens, API keys)
-- [ ] 3 - Consume secrets as environment variables in the `Deployment`
-- [ ] 4 - Install HashiCorp Vault on Minikube
-- [ ] 5 - Understand Vault concepts: secrets engine, policies, AppRole authentication
-- [ ] 6 - Integrate Vault with Kubernetes using the Vault Agent Injector (sidecar)
-- [ ] 7 - Migrate sensitive config from Kubernetes `Secret` to Vault
+1. Understand the difference between `ConfigMap` and `Secret`
+2. Create Kubernetes `Secret` resources for sensitive values (passwords, tokens, API keys)
+3. Consume secrets as environment variables in the `Deployment`
+4. Install HashiCorp Vault on Minikube
+5. Understand Vault concepts: secrets engine, policies, AppRole authentication
+6. Integrate Vault with Kubernetes using the Vault Agent Injector (sidecar)
+7. Migrate sensitive config from Kubernetes `Secret` to Vault
 
 ### Phase 5 — Service Mesh with Istio
 
-- [x] 1 - Install Istio on Minikube (`istioctl install`)
-- [x] 2 - Enable sidecar injection on the `products` namespace
-- [x] 3 - Understand core Istio resources: `VirtualService`, `DestinationRule`, `Gateway`
-- [x] 4 - Expose `GET /products` through an Istio `Gateway` + `VirtualService`
-- [ ] 5 - Explore traffic management: retries, timeouts, and fault injection for testing
-- [ ] 6 - Test canary deployment using `DestinationRule` subsets and `VirtualService` traffic splitting
-- [ ] 7 - Observe traffic with Kiali, Jaeger (tracing), and Prometheus/Grafana (metrics)
+1. Install Istio on Minikube (`istioctl install`) ✅
+2. Enable sidecar injection on the `products` namespace ✅
+3. Understand core Istio resources: `VirtualService`, `DestinationRule`, `Gateway` ✅
+4. Expose `GET /products` through an Istio `Gateway` + `VirtualService` ✅
+5. Explore traffic management: retries, timeouts, and fault injection for testing
+6. Test canary deployment using `DestinationRule` subsets and `VirtualService` traffic splitting
+7. Observe traffic with Kiali, Jaeger (tracing), and Prometheus/Grafana (metrics)
 
 ### Phase 6 — RBAC & IAM
 
-- [ ] 1 - Create a `ServiceAccount` per app (`products`, `users`) and attach it to each `Deployment`
-- [ ] 2 - Define `Role` resources scoped to each namespace — allow only the verbs each app needs
-- [ ] 3 - Bind roles to service accounts with `RoleBinding`
-- [ ] 4 - Move `PRODUCTS_API_KEY` from `ConfigMap` to a `Secret`; restrict read access to `users` only
-- [ ] 5 - Verify `products` cannot access the `users` secret (test with `kubectl auth can-i`)
-- [ ] 6 - Confirm namespace isolation: roles in `dev` do not apply in `prod`
+| Concept | What it is | Where it lives | Coverable here |
+|---|---|---|---|
+| `ServiceAccount` | Identity for a pod/workload | Kubernetes | ✅ |
+| `Role` | Set of permissions scoped to a namespace | Kubernetes | ✅ |
+| `ClusterRole` | Set of permissions scoped cluster-wide | Kubernetes | ✅ |
+| `RoleBinding` | Attaches a `Role` to a `ServiceAccount` | Kubernetes | ✅ |
+| `ClusterRoleBinding` | Attaches a `ClusterRole` to a `ServiceAccount` | Kubernetes | ✅ |
+| `Secret` | Stores sensitive data inside the cluster | Kubernetes | ✅ |
+| `kubectl auth can-i` | Verify what a service account can do | Kubernetes | ✅ |
+| Namespace isolation | Roles in `dev` don't apply in `prod` | Kubernetes | ✅ |
+| GCP Service Account | Identity for a GCP workload (not K8s) | GCP IAM | ❌ |
+| GCP Roles | Predefined (`roles/viewer`) or custom permission sets | GCP IAM | ❌ |
+| IAM Policy Binding | Attaches a GCP role to a GCP service account | GCP IAM | ❌ |
+| Least Privilege | Granting only the permissions needed | Both | ✅ concept / ❌ GCP-specific |
+| Workload Identity | Links K8s `ServiceAccount` → GCP `ServiceAccount` | GCP + K8s | ❌ (GKE only) |
+| IAM Conditions | Conditional access based on resource/time/context | GCP IAM | ❌ |
+| Audit Logs | Who did what, when | GCP IAM | ❌ |
+| Secret Manager | Managed secrets service (replaces K8s `Secret`) | GCP | ❌ |
+
+1. Create a `ServiceAccount` per app (`products`, `users`) and attach it to each `Deployment`
+2. Define `Role` resources scoped to each namespace — allow only the verbs each app needs
+3. Bind roles to service accounts with `RoleBinding`
+4. Move `PRODUCTS_API_KEY` from `ConfigMap` to a `Secret`; restrict read access to `users` only
+5. Verify `products` cannot access the `users` secret (test with `kubectl auth can-i`)
+6. Confirm namespace isolation: roles in `dev` do not apply in `prod`
+7. Apply a `default-deny-all` `NetworkPolicy` to enforce zero trust (requires `--cni=calico`)
+8. Explicitly allow only `users` → `products` traffic via a targeted `NetworkPolicy`
+9. Verify denied traffic (curl from `products` pod to `users` should be blocked)
 
 ### Phase 7 — Provision Cloud Infrastructure
 
-- [ ] 1 - Choose a cloud provider (AWS, GCP, or Azure)
-- [ ] 2 - Provision a managed Kubernetes cluster (e.g., EKS, GKE, AKS)
-- [ ] 3 - Set up a container registry on the chosen provider
-- [ ] 4 - Configure IAM roles / service accounts with least-privilege access for deployments
+1. Choose a cloud provider (AWS, GCP, or Azure)
+2. Provision a managed Kubernetes cluster (e.g., EKS, GKE, AKS)
+3. Set up a container registry on the chosen provider
+4. Configure IAM roles / service accounts with least-privilege access for deployments
 
 ### Phase 8 — Deploy to Cloud
 
-- [ ] 1 - Push the image to the cloud registry
-- [ ] 2 - Apply manifests/Helm chart to the cloud cluster
-- [ ] 3 - Verify `GET /products` on the cloud
+1. Push the image to the cloud registry
+2. Apply manifests/Helm chart to the cloud cluster
+3. Verify `GET /products` on the cloud
 
 ### Phase 9 — Improvements (stretch goals)
 
-- [ ] 1 - Add health checks and rollback on failed deployments
-- [ ] 2 - Use Infrastructure as Code (Terraform or cloud-native IaC - to provision resources
-- [ ] 3 - Add a staging environment and promote builds from staging to production
+1. Add health checks and rollback on failed deployments
+2. Use Infrastructure as Code (Terraform or cloud-native IaC - to provision resources
+3. Add a staging environment and promote builds from staging to production
 
 ## Tech Stack
 

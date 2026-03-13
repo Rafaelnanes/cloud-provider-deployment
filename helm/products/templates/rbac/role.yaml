@@ -1,0 +1,12 @@
+{{- if .Values.security.rbacIam }}
+apiVersion: rbac.authorization.k8s.io/v1
+kind: Role
+metadata:
+  name: {{ .Release.Name }}
+  namespace: {{ .Release.Namespace }}
+rules:
+  - apiGroups: [""]
+    resources: ["configmaps"]
+    resourceNames: ["{{ .Release.Name }}-config"]
+    verbs: ["get"]
+{{- end }}

@@ -11,3 +11,7 @@ apiKey: prod-secret-key
 
 config:
   envInfo: prod
+
+security:
+  networkPolicy: true
+  rbacIam: true

@@ -22,3 +22,7 @@ config:
   serverPort: 8080
   logLevelRoot: INFO
   logLevelApp: DEBUG
+
+security:
+  networkPolicy: false
+  rbacIam: false

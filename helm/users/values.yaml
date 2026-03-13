@@ -25,3 +25,7 @@ config:
 
   logLevelRoot: INFO
   logLevelApp: DEBUG
+
+security:
+  networkPolicy: false
+  rbacIam: false
