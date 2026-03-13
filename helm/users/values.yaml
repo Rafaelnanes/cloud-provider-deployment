@@ -3,16 +3,21 @@ replicaCount: 1
 image:
   name: users
   tag: jvm
-  pullPolicy: Never
+  pullPolicy: Always
 
 service:
   type: ClusterIP
   port: 8080
 
 readinessProbe:
-  path: /users
+  path: /actuator/health/readiness
   initialDelaySeconds: 5
-  periodSeconds: 5
+  periodSeconds: 15
+
+livenessProbe:
+  path: /actuator/health/liveness
+  initialDelaySeconds: 10
+  periodSeconds: 10
 
 config:
   envInfo: default

@@ -10,3 +10,13 @@ logging:
     com.product: ${LOG_LEVEL_APP:DEBUG}
 
 server.port: ${SERVER_PORT}
+
+management:
+  endpoints:
+    web:
+      exposure:
+        include: health
+  endpoint:
+    health:
+      probes:
+        enabled: true

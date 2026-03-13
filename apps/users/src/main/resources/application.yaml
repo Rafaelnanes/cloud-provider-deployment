@@ -9,6 +9,16 @@ service:
 
 server.port: ${SERVER_PORT}
 
+management:
+  endpoints:
+    web:
+      exposure:
+        include: health
+  endpoint:
+    health:
+      probes:
+        enabled: true
+
 logging:
   level:
     root: ${LOG_LEVEL_ROOT:INFO}

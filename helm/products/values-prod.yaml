@@ -1,12 +1,5 @@
 replicaCount: 3
 
-image:
-  tag: jvm
-  pullPolicy: IfNotPresent
-
-service:
-  type: ClusterIP
-
 domainPrefix: rbn/prod
 apiKey: prod-secret-key
 

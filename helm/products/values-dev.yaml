@@ -1,12 +1,5 @@
 replicaCount: 1
 
-image:
-  tag: jvm
-  pullPolicy: IfNotPresent
-
-service:
-  type: ClusterIP
-
 domainPrefix: rbn/dev
 apiKey: dev-secret-key
 
