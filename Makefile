@@ -3,7 +3,7 @@ NAMESPACE  := dev
 HELM_CHART := ./helm/$(APP)
 VERIFY_URL := http://127.0.0.1:64537
 
-.PHONY: build deploy rollback verify clean setup-namespaces setup-istio setup help
+.PHONY: build kind-load deploy rollback verify clean setup-namespaces setup-istio setup help
 
 help:
 	@echo "Usage: make <target> [APP=products|users] [NAMESPACE=dev|prod]"
@@ -16,8 +16,9 @@ help:
 	@echo "  setup-namespaces   Create and label dev/prod namespaces"
 	@echo ""
 	@echo "Build & Deploy:"
-	@echo "  build              Build APP:jvm Docker image in Minikube"
-	@echo "  deploy             Build and deploy APP to NAMESPACE"
+	@echo "  build              Build APP:jvm Docker image"
+	@echo "  kind-load          Load APP:jvm image into kind cluster"
+	@echo "  deploy             Build, load into kind, and deploy APP to NAMESPACE"
 	@echo "  deploy-all         Build and deploy all apps to NAMESPACE"
 	@echo ""
 	@echo "Utilities:"
@@ -53,7 +54,11 @@ build:
 	@echo "==> [$(APP)] - Building $(APP):jvm image..."
 	docker build -f ./apps/$(APP)/docker/Dockerfile-jvm -t $(APP):jvm ./apps/$(APP)
 
-deploy: build
+kind-load:
+	@echo "==> [$(APP)] - Loading $(APP):jvm into kind cluster..."
+	kind load docker-image $(APP):jvm
+
+deploy: build kind-load
 	@echo "==> [$(APP)] Deploying Helm release to namespace '$(NAMESPACE)'..."
 	helm upgrade --install $(APP)-$(NAMESPACE) $(HELM_CHART) \
 		-f $(HELM_CHART)/values.yaml \

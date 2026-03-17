@@ -3,7 +3,7 @@ replicaCount: 1
 image:
   name: products
   tag: jvm
-  pullPolicy: Always
+  pullPolicy: Never
 
 service:
   type: ClusterIP
