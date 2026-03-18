@@ -1,0 +1,9 @@
+apiVersion: v1
+kind: ConfigMap
+metadata:
+  name: {{ .Release.Name }}-config
+data:
+  ENV_INFO: {{ .Values.config.envInfo }}
+  SERVER_PORT: {{ .Values.config.serverPort | quote }}
+  LOG_LEVEL_ROOT: {{ .Values.config.logLevelRoot }}
+  LOG_LEVEL_APP: {{ .Values.config.logLevelApp }}

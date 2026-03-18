@@ -1,0 +1,27 @@
+replicaCount: 1
+
+image:
+  name: gcr.io/project-3cec667f-8135-4778-9b4/products
+  tag: jvm
+  pullPolicy: Always
+
+service:
+  type: LoadBalancer
+  port: 80
+  targetPort: 8080
+
+readinessProbe:
+  path: /actuator/health/readiness
+  initialDelaySeconds: 10
+  periodSeconds: 15
+
+livenessProbe:
+  path: /actuator/health/liveness
+  initialDelaySeconds: 10
+  periodSeconds: 10
+
+config:
+  envInfo: gcp
+  serverPort: 8080
+  logLevelRoot: INFO
+  logLevelApp: DEBUG
