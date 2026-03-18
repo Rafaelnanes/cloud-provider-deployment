@@ -43,8 +43,6 @@ pre-processes beans and proxies at build time so the native compilation succeeds
 docker build -t products:latest .
 #docker build -f ./docker/Dockerfile-jvm -t products:jvm .
 #docker build -f ./docker/Dockerfile-aot -t products:aot .        
-
-docker run -p 8080:8080 products:latest
 ```
 
 ```bash

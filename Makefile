@@ -3,7 +3,7 @@ NAMESPACE  := dev
 HELM_CHART := ./helm/$(APP)
 NGINX_INGRESS_MANIFEST := https://raw.githubusercontent.com/kubernetes/ingress-nginx/controller-v1.10.1/deploy/static/provider/kind/deploy.yaml
 
-.PHONY: build kind-load deploy rollback verify clean setup-namespaces setup-istio setup cluster-create setup-nginx setup-nginx-routing help
+.PHONY: build kind-load deploy rollback verify verify-networkpolicy clean setup-namespaces setup-istio setup cluster-create setup-nginx setup-nginx-routing help
 
 help:
 	@echo "Usage: make <target> [APP=products|users] [NAMESPACE=dev|prod]"
@@ -98,6 +98,13 @@ deploy-all:
 verify:
 	@echo "==> [$(APP)] Sending test request to http://localhost/rbn/$(NAMESPACE)/$(APP)..."
 	curl -H "X-API-KEY: $(NAMESPACE)-secret-key" http://localhost/rbn/$(NAMESPACE)/$(APP)
+
+verify-networkpolicy:
+	@echo "==> Verifying direct access to Istio IngressGateway is blocked by NetworkPolicy..."
+	@echo "    Run in a separate terminal: kubectl port-forward -n istio-system svc/istio-ingressgateway 8888:80"
+	@echo "    Then run: curl -v http://localhost:8888/rbn/$(NAMESPACE)/$(APP)"
+	@echo "    Expected: connection refused or timeout (not HTTP 200)"
+	@echo "    Traffic via NGINX (http://localhost/rbn/$(NAMESPACE)/$(APP)) must still return HTTP 200."
 
 rollback:
 	@echo "==> [$(APP)] Rolling back $(APP)-$(NAMESPACE) in namespace '$(NAMESPACE)'..."
