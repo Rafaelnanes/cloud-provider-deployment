@@ -1,0 +1,11 @@
+istioGateway:
+  namespace: istio-system
+  serviceName: istio-ingressgateway
+
+nginxNamespace: ingress-nginx
+
+paths:
+  - /rbn/dev/products
+  - /rbn/prod/products
+  - /rbn/dev/users
+  - /rbn/prod/users

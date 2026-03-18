@@ -1,0 +1,5 @@
+apiVersion: v2
+name: nginx-ingress
+description: NGINX Ingress routing to Istio IngressGateway
+type: application
+version: 0.1.0

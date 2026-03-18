@@ -1,0 +1,14 @@
+apiVersion: v1
+kind: Service
+metadata:
+  name: istio-ingressgateway-proxy
+  # Must live in the same namespace as the Ingress — Ingress can only reference Services in its own namespace
+  namespace: {{ .Values.nginxNamespace }}
+spec:
+  # ExternalName = a DNS alias; no proxying, no load balancing — just resolves to the externalName FQDN
+  type: ExternalName
+  # Points to the Istio IngressGateway Service in istio-system — this is the cross-namespace bridge
+  externalName: {{ .Values.istioGateway.serviceName }}.{{ .Values.istioGateway.namespace }}.svc.cluster.local
+  ports:
+    - port: 80
+      targetPort: 80
