@@ -8,7 +8,8 @@ PROJECT_ID := project-3cec667f-8135-4778-9b4
 REPO       := docker-main
 IMAGE_TAG  := jvm
 REGISTRY   := $(REGION)-docker.pkg.dev/$(PROJECT_ID)/$(REPO)
-HELM_CHART := ./$(APP)
+HELM_CHART    := ./$(APP)
+DOMAIN_PREFIX := rbn
 
 .PHONY: help gcp-auth build push deploy deploy-only rollback verify clean
 
@@ -24,9 +25,10 @@ help:
 	@Write-Host "  build           Build APP:jvm Docker image locally"
 	@Write-Host "  push            Tag and push image to Artifact Registry"
 	@Write-Host "  deploy          push + helm upgrade --install to NAMESPACE"
+	@Write-Host "  deploy-only     helm upgrade --install to NAMESPACE"
 	@Write-Host ""
 	@Write-Host "Utilities:"
-	@Write-Host "  verify          Send test request to the LoadBalancer external IP"
+	@Write-Host "  verify          Send test request to the GKE Gateway external IP"
 	@Write-Host "  rollback        Roll back APP Helm release to previous revision"
 	@Write-Host "  clean           Uninstall APP Helm release from NAMESPACE"
 	@Write-Host ""
@@ -64,8 +66,8 @@ deploy: push deploy-only
 # ── Utilities ────────────────────────────────────────────────────────────────
 
 verify:
-	@Write-Host "==> [$(APP)] Fetching LoadBalancer external IP..."
-	$$ip = kubectl get svc $(APP)-$(NAMESPACE) -n $(NAMESPACE) -o jsonpath='{.status.loadBalancer.ingress[0].ip}'; Write-Host "==> Sending request to http://$$ip/$(APP)..."; Invoke-WebRequest "http://$$ip/$(APP)" -UseBasicParsing
+	@Write-Host "==> [$(APP)] Fetching Gateway external IP..."
+	$$ip = kubectl get gateway $(APP)-gateway -n $(NAMESPACE) -o jsonpath='{.status.addresses[0].value}'; Write-Host "==> Sending request to http://$$ip/$(DOMAIN_PREFIX)/$(APP)..."; Invoke-WebRequest "http://$$ip/$(DOMAIN_PREFIX)/$(APP)" -UseBasicParsing
 
 rollback:
 	@Write-Host "==> [$(APP)] Rolling back $(APP)-$(NAMESPACE) in namespace '$(NAMESPACE)'..."
@@ -73,4 +75,4 @@ rollback:
 
 clean:
 	@Write-Host "==> [$(APP)] Uninstalling $(APP)-$(NAMESPACE) from namespace '$(NAMESPACE)'..."
-	helm uninstall $(APP)-$(NAMESPACE) -n $(NAMESPACE)
+	helm uninstall $(APP) -n $(NAMESPACE)
