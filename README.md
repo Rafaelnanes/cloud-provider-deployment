@@ -167,16 +167,16 @@ learning path.
 
 ### Phase 7 — Provision Cloud Infrastructure
 
-1. Choose a cloud provider (AWS, GCP, or Azure)
-2. Provision a managed Kubernetes cluster (e.g., EKS, GKE, AKS)
-3. Set up a container registry on the chosen provider
-4. Configure IAM roles / service accounts with least-privilege access for deployments
+1. Choose a cloud provider (AWS, GCP, or Azure) ✅
+2. Provision a managed Kubernetes cluster (e.g., EKS, GKE, AKS) ✅
+3. Set up a container registry on the chosen provider ✅
+4. Configure IAM roles / service accounts with least-privilege access for deployments ✅
 
 ### Phase 8 — Deploy to Cloud
 
-1. Push the image to the cloud registry
-2. Apply manifests/Helm chart to the cloud cluster
-3. Verify `GET /products` on the cloud
+1. Push the image to the cloud registry ✅
+2. Apply manifests/Helm chart to the cloud cluster ✅
+3. Verify `GET /products` on the cloud ✅
 
 ### Phase 9 — Improvements (stretch goals)
 
