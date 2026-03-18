@@ -22,16 +22,6 @@ spec:
   parentRefs:
     - name: {{ .Release.Name }}-gateway
   rules:
-    - matches:
-        - path:
-            type: PathPrefix
-            value: /{{ .Values.domainPrefix }}
-      filters:
-        - type: URLRewrite
-          urlRewrite:
-            path:
-              type: ReplacePrefixMatch
-              replacePrefixMatch: /
-      backendRefs:
+    - backendRefs:
         - name: {{ .Release.Name }}
           port: {{ .Values.service.port }}
