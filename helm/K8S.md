@@ -107,6 +107,51 @@ spec:
               app: users-dev
 ```
 
+### Architecture Diagrams
+
+#### Request Flow (runtime)
+
+```plantuml
+@startuml
+actor Client
+participant Cluster
+participant Node
+participant Gateway
+participant Service
+participant Pod
+
+Client -> Cluster : HTTP request (external IP)
+Cluster -> Node : route to node running gateway
+Node -> Gateway : forward to ingress gateway
+Gateway -> Gateway : match path prefix /rbn/, validate x-api-key
+Gateway -> Service : route to ClusterIP service
+Service -> Pod : load balance to healthy pod
+Pod --> Client : HTTP response
+@enduml
+```
+
+#### Workload Deployment (control plane)
+
+```plantuml
+@startuml
+actor User
+participant Cluster
+participant Controller
+participant ReplicaSet
+participant Node
+participant Pod
+
+User -> Cluster : kubectl apply / helm upgrade (Workload = Deployment)
+Cluster -> Controller : Deployment controller detects desired state change
+Controller -> ReplicaSet : create or update ReplicaSet with pod template
+ReplicaSet -> Pod : create N pods to match replicas
+Pod -> Node : scheduler assigns pod to a node
+Node --> ReplicaSet : pod running, ready
+ReplicaSet --> Controller : desired == actual
+Controller --> Cluster : rollout complete
+@enduml
+```
+
 ### Useful Commands
 
 ```bash

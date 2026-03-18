@@ -16,7 +16,9 @@ A learning project focused on deploying Java Spring Boot applications to a cloud
     6. [Phase 6 — RBAC & IAM](#phase-6--rbac--iam)
     7. [Phase 7 — Provision Cloud Infrastructure](#phase-7--provision-cloud-infrastructure)
     8. [Phase 8 — Deploy to Cloud](#phase-8--deploy-to-cloud)
-    9. [Phase 9 — Improvements](#phase-9--improvements-stretch-goals)
+    9. [Phase 9 — GCP Gateway & Service Mesh](#phase-9--gcp-gateway--service-mesh)
+    10. [Phase 10 — Google Secret Manager](#phase-10--google-secret-manager-gsm)
+    11. [Phase 11 — Improvements](#phase-11--improvements-stretch-goals)
 - [Tech Stack](#tech-stack)
 
 ## Pending Checklist
@@ -178,10 +180,30 @@ learning path.
 2. Apply manifests/Helm chart to the cloud cluster ✅
 3. Verify `GET /products` on the cloud ✅
 
-### Phase 9 — Improvements (stretch goals)
+### Phase 9 — GCP Gateway & Service Mesh
+
+1. Replace the `LoadBalancer` service with a GKE Gateway (Kubernetes Gateway API)
+2. Define `HTTPRoute` to route traffic to the `products` ClusterIP service
+3. Understand the difference: Gateway API vs classic Ingress vs LoadBalancer
+4. Configure the `HTTPRoute` to only accept requests with the `/rbn/` path prefix
+5. Validate the `x-api-key` header at the Gateway level (via `HTTPRoute` filter or Istio `EnvoyFilter`)
+6. Install Istio on GKE and enable sidecar injection
+7. Expose `products` through an Istio `Gateway` + `VirtualService` on GKE
+8. Apply an Istio `AuthorizationPolicy` to allow traffic to `products` only from the Istio ingress gateway (deny all other sources)
+9. Test traffic management (retries, timeouts) in the cloud environment
+
+### Phase 10 — Google Secret Manager (GSM)
+
+1. Understand GSM vs Kubernetes `Secret` vs HashiCorp Vault
+2. Store a secret (e.g. API key) in GSM via GCP Console and `gcloud`
+3. Configure Workload Identity to link the K8s `ServiceAccount` → GCP `ServiceAccount`
+4. Use the External Secrets Operator to inject GSM secrets into the pod
+5. Verify the secret is available as an env var in the `products` container
+
+### Phase 11 — Improvements (stretch goals)
 
 1. Add health checks and rollback on failed deployments
-2. Use Infrastructure as Code (Terraform or cloud-native IaC - to provision resources
+2. Use Infrastructure as Code (Terraform) to provision GKE, registry, and IAM
 3. Add a staging environment and promote builds from staging to production
 
 ## Tech Stack
@@ -194,6 +216,6 @@ learning path.
 | Containerization | Docker                               |
 | Local Kubernetes | Minikube                             |
 | Package manager  | Helm                                 |
-| Secrets manager  | Kubernetes Secrets + HashiCorp Vault |
+| Secrets manager  | Kubernetes Secrets + HashiCorp Vault + Google Secret Manager |
 | Service mesh     | Istio                                |
 | Cloud Kubernetes | TBD (EKS / GKE / AKS)                |
