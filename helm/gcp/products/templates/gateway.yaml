@@ -22,6 +22,39 @@ spec:
   parentRefs:
     - name: {{ .Release.Name }}-gateway
   rules:
-    - backendRefs:
-        - name: {{ .Release.Name }}
-          port: {{ .Values.service.port }}
+      - matches:
+        - path:
+            type: PathPrefix
+            value: /{{ .Values.domainPrefix }}
+        filters:
+          - type: URLRewrite
+            urlRewrite:
+              path:
+                type: ReplacePrefixMatch
+                replacePrefixMatch: /
+        backendRefs:
+          - name: {{ .Release.Name }}
+            port: {{ .Values.service.port }}
+
+
+---
+apiVersion: networking.gke.io/v1
+kind: HealthCheckPolicy
+metadata:
+  name: {{ .Release.Name }}-health-check
+  namespace: {{ .Release.Namespace }}
+spec:
+  default:
+    checkIntervalSec: 15
+    timeoutSec: 5
+    healthyThreshold: 1
+    unhealthyThreshold: 2
+    config:
+      type: HTTP
+      httpHealthCheck:
+        requestPath: {{ .Values.readinessProbe.path }}
+        port: {{ .Values.config.serverPort }}
+  targetRef:
+    group: ""
+    kind: Service
+    name: {{ .Release.Name }}
