@@ -33,7 +33,7 @@
 ### Helm Chart Structure
 
 ```
-helm/products/templates/
+helm/local/products/templates/
 ├── configmap.yaml             # injects env vars per environment
 ├── deployment.yaml            # references serviceAccountName to bind the pod identity
 ├── gateway.yaml               # Istio Gateway + VirtualService

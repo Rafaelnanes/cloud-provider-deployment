@@ -30,7 +30,7 @@ Two independent Spring Boot 4 / Java 21 services. Both are deployable units in t
 ## Inter-service communication
 
 `users` calls `products` via in-cluster DNS using `ProductsClient` (Spring `RestClient`).
-The URL is injected through `config.productsUrl` in `helm/users/values.yaml`:
+The URL is injected through `config.productsUrl` in `helm/local/users/values.yaml`:
 
 ```
 http://products-{namespace}:8080

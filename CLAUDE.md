@@ -31,11 +31,11 @@ make verify APP=products VERIFY_URL=http://127.0.0.1:<PORT>
 
 ### Helm (manual)
 ```bash
-helm upgrade --install products ./helm/products \
-  -f ./helm/products/values-dev.yaml -n dev
+helm upgrade --install products ./helm/local/products \
+  -f ./helm/local/products/values-dev.yaml -n dev
 
-helm upgrade --install products ./helm/products \
-  -f ./helm/products/values-prod.yaml -n prod
+helm upgrade --install products ./helm/local/products \
+  -f ./helm/local/products/values-prod.yaml -n prod
 ```
 
 ## Architecture
@@ -51,7 +51,7 @@ curl → Istio IngressGateway (port 80)
 ```
 
 ### Helm Chart Layout
-Each service has its own chart under `helm/{app}/`:
+Each service has its own chart under `helm/local/{app}/`:
 - `values.yaml` — base defaults (1 replica, `pullPolicy: Never`, ClusterIP)
 - `values-dev.yaml` — dev overrides (`domainPrefix: rbn/dev`, 1 replica)
 - `values-prod.yaml` — prod overrides (3 replicas, `security.networkPolicy: true`, `security.rbacIam: true`)
@@ -64,7 +64,7 @@ Security features (`NetworkPolicy`, `ServiceAccount`/`Role`/`RoleBinding`) are *
 - `SERVER_PORT`, `LOG_LEVEL_ROOT`, `LOG_LEVEL_APP`
 
 ### Users → Products Communication
-`users` calls `products` via in-cluster DNS: `http://products-{namespace}:8080`, configured in `helm/users/values.yaml` as `config.productsUrl`.
+`users` calls `products` via in-cluster DNS: `http://products-{namespace}:8080`, configured in `helm/local/users/values.yaml` as `config.productsUrl`.
 
 ### Image Strategy
 - Local dev: `imagePullPolicy: Never` — images must be loaded into kind with `make kind-load`
@@ -72,6 +72,6 @@ Security features (`NetworkPolicy`, `ServiceAccount`/`Role`/`RoleBinding`) are *
 
 ## Key Files
 - `Makefile` — primary orchestration entrypoint
-- `helm/{app}/templates/gateway.yaml` — Istio Gateway + VirtualService + DestinationRule
-- `helm/{app}/templates/rbac/` — conditionally rendered RBAC resources
+- `helm/local/{app}/templates/gateway.yaml` — Istio Gateway + VirtualService + DestinationRule
+- `helm/local/{app}/templates/rbac/` — conditionally rendered RBAC resources
 - `apps/products/src/main/resources/application.yaml` — env var bindings + actuator config

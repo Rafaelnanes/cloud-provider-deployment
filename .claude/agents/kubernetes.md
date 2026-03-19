@@ -12,14 +12,14 @@ You are a Kubernetes specialist for this project.
 - NGINX Ingress Controller routes external traffic → Istio IngressGateway → services
 
 ## All k8s/Helm files live under `helm/`
-- `helm/products/` — Helm chart for the products service
-- `helm/users/` — Helm chart for the users service
-- `helm/nginx-ingress/` — ExternalName service + Ingress routing NGINX → Istio
+- `helm/local/products/` — Helm chart for the products service
+- `helm/local/users/` — Helm chart for the users service
+- `helm/local/nginx-ingress/` — ExternalName service + Ingress routing NGINX → Istio
 - `helm/ISTIO.md` — Istio setup and architecture notes
 - `helm/K8S.md` — Kubernetes notes
 
 ## Helm Chart Structure (per app)
-Each chart under `helm/{app}/` contains:
+Each chart under `helm/local/{app}/` contains:
 - `values.yaml` — base defaults (1 replica, `pullPolicy: Never`, ClusterIP)
 - `values-dev.yaml` — dev overrides (`domainPrefix: rbn/dev`, 1 replica)
 - `values-prod.yaml` — prod overrides (3 replicas, security flags enabled)

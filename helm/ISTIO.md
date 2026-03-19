@@ -8,7 +8,7 @@ Run `make setup` first (installs Istio + creates/labels namespaces).
 
 ```bash
 # From project root
-helm upgrade --install products-dev ./helm/products -f ./helm/products/values.yaml -f ./helm/products/values-dev.yaml -n dev
+helm upgrade --install products-dev ./helm/local/products -f ./helm/local/products/values.yaml -f ./helm/local/products/values-dev.yaml -n dev
 ```
 
 **2. Verify sidecar injection (expect 2/2):**
@@ -64,7 +64,7 @@ DestinationRule  → workload policies (which pods, how to talk to them)
 
 ## Gateway & VirtualService
 
-Defined in `helm/products/templates/gateway.yaml` (project root).
+Defined in `helm/local/products/templates/gateway.yaml` (project root).
 
 - `Gateway` — listens on port 80, accepts all hosts
 - `VirtualService` — routes `/products` traffic to the products service

@@ -1,0 +1,7 @@
+{
+  "permissions": {
+    "allow": [
+      "Bash(grep -r helm/ /c/dev/projects/cloud-provider-deployment --include=*.json --include=*.yml --include=*.yaml --include=*.sh --exclude-dir=helm --exclude-dir=.git)"
+    ]
+  }
+}

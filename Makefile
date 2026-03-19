@@ -1,6 +1,6 @@
 APP        := products
 NAMESPACE  := dev
-HELM_CHART := ./helm/$(APP)
+HELM_CHART := ./helm/local/$(APP)
 NGINX_INGRESS_MANIFEST := https://raw.githubusercontent.com/kubernetes/ingress-nginx/controller-v1.10.1/deploy/static/provider/kind/deploy.yaml
 
 .PHONY: build kind-load deploy rollback verify verify-networkpolicy clean setup-namespaces setup-istio setup cluster-create setup-nginx setup-nginx-routing help
@@ -65,7 +65,7 @@ setup-nginx:
 
 setup-nginx-routing:
 	@echo "==> Deploying nginx-ingress Helm chart..."
-	helm upgrade --install nginx-ingress ./helm/nginx-ingress -n ingress-nginx --create-namespace
+	helm upgrade --install nginx-ingress ./helm/local/nginx-ingress -n ingress-nginx --create-namespace
 
 setup: setup-istio setup-namespaces setup-nginx setup-nginx-routing
 	@echo "==> Cluster is ready."

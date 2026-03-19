@@ -21,7 +21,7 @@ You are a backend specialist for this project.
 ### `apps/users/`
 - Same stack: Spring Boot 4, Java 21, Gradle, Lombok
 - Calls `products` internally via in-cluster DNS: `http://products-{namespace}:8080`
-- `productsUrl` configured in `helm/users/values.yaml`
+- `productsUrl` configured in `helm/local/users/values.yaml`
 
 ## Build Commands
 ```bash
@@ -40,7 +40,7 @@ make build APP=users      # docker build → users:jvm
 ## Service-to-Service Communication
 - `users` → `products` via ClusterIP DNS
 - URL pattern: `http://products-{namespace}:8080`
-- Configured as `config.productsUrl` in `helm/users/values.yaml`
+- Configured as `config.productsUrl` in `helm/local/users/values.yaml`
 
 ## Key Source Files
 - `apps/products/src/main/resources/application.yaml` — env var bindings + actuator config

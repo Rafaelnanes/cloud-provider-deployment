@@ -121,7 +121,8 @@ learning path.
 5. Validate the `x-api-key` header at the Gateway level (via `HTTPRoute` filter or Istio `EnvoyFilter`)
 6. Install Istio on GKE and enable sidecar injection
 7. Expose `products` through an Istio `Gateway` + `VirtualService` on GKE
-8. Apply an Istio `AuthorizationPolicy` to allow traffic to `products` only from the Istio ingress gateway (deny all other sources)
+8. Apply an Istio `AuthorizationPolicy` to allow traffic to `products` only from the Istio ingress gateway (deny all
+   other sources)
 9. Test traffic management (retries, timeouts) in the cloud environment
 
 ### Phase 10 — Google Secret Manager (GSM)
@@ -134,20 +135,22 @@ learning path.
 
 ### Phase 11 — Improvements (stretch goals)
 
-1. Add health checks and rollback on failed deployments
-2. Use Infrastructure as Code (Terraform) to provision GKE, registry, and IAM
-3. Add a staging environment and promote builds from staging to production
+1. mTls
+2. external name instead of externalIp
+3. Add health checks and rollback on failed deployments
+4. Use Infrastructure as Code (Terraform) to provision GKE, registry, and IAM
+5. Add a staging environment and promote builds from staging to production
 
 ## Tech Stack
 
-| Layer            | Technology                           |
-|------------------|--------------------------------------|
-| Language         | Java 21                              |
-| Framework        | Spring Boot 4                        |
-| Build tool       | Gradle (Kotlin DSL)                  |
-| Containerization | Docker                               |
-| Local Kubernetes | Minikube                             |
-| Package manager  | Helm                                 |
+| Layer            | Technology                                                   |
+|------------------|--------------------------------------------------------------|
+| Language         | Java 21                                                      |
+| Framework        | Spring Boot 4                                                |
+| Build tool       | Gradle (Kotlin DSL)                                          |
+| Containerization | Docker                                                       |
+| Local Kubernetes | Minikube                                                     |
+| Package manager  | Helm                                                         |
 | Secrets manager  | Kubernetes Secrets + HashiCorp Vault + Google Secret Manager |
-| Service mesh     | Istio                                |
-| Cloud Kubernetes | TBD (EKS / GKE / AKS)                |
+| Service mesh     | Istio                                                        |
+| Cloud Kubernetes | TBD (EKS / GKE / AKS)                                        |
