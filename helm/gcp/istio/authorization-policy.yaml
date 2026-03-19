@@ -1,0 +1,18 @@
+apiVersion: security.istio.io/v1beta1
+kind: AuthorizationPolicy
+metadata:
+  name: allow-users-to-products
+spec:
+  selector:
+    matchLabels:
+      app: products
+  # ALLOW = whitelist model; anything not matched by a rule is denied
+  action: ALLOW
+  rules:
+    - from:
+        - source:
+            # only requests from these SPIFFE identities (ServiceAccounts) are allowed
+            # format: cluster.local/ns/{namespace}/sa/{service-account-name}
+            principals:
+              - "cluster.local/ns/dev/sa/users"
+              - "cluster.local/ns/prod/sa/users"
