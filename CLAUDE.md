@@ -7,9 +7,8 @@ This file provides guidance to Claude Code (claude.ai/code) when working with co
 ### Build & Deploy
 ```bash
 make setup                               # First-time: install Istio + create namespaces
-make build APP=products                  # Build Docker image (products:jvm)
-make kind-load APP=products              # Load image into kind cluster
-make deploy APP=products NAMESPACE=dev   # Build + load + helm upgrade --install
+make build APP=products                  # Build image inside minikube's Docker daemon
+make deploy APP=products NAMESPACE=dev   # Build + helm upgrade --install
 make deploy-all NAMESPACE=prod           # Deploy both products and users
 make rollback APP=products NAMESPACE=dev
 make clean APP=products NAMESPACE=dev
@@ -40,7 +39,7 @@ helm upgrade --install products ./helm/local/products \
 
 ## Architecture
 
-Two independent Spring Boot 4 / Java 21 services (`apps/products`, `apps/users`) deployed to a local kind cluster via Helm with Istio service mesh.
+Two independent Spring Boot 4 / Java 21 services (`apps/products`, `apps/users`) deployed to a local minikube cluster via Helm with Istio service mesh.
 
 ### Request Flow
 ```
@@ -67,7 +66,7 @@ Security features (`NetworkPolicy`, `ServiceAccount`/`Role`/`RoleBinding`) are *
 `users` calls `products` via in-cluster DNS: `http://products-{namespace}:8080`, configured in `helm/local/users/values.yaml` as `config.productsUrl`.
 
 ### Image Strategy
-- Local dev: `imagePullPolicy: Never` — images must be loaded into kind with `make kind-load`
+- Local dev: `imagePullPolicy: Never` — images are built directly inside minikube's Docker daemon via `eval $(minikube docker-env)`
 - Two Dockerfile variants in `docker/`: `Dockerfile-jvm` (default), `Dockerfile-aot` (GraalVM native)
 
 ## Key Files

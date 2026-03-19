@@ -2,7 +2,7 @@ apiVersion: networking.k8s.io/v1
 kind: Ingress
 metadata:
   name: istio-passthrough
-  namespace: { { .Values.nginxNamespace } }
+  namespace: {{ .Values.nginxNamespace }}
   annotations:
     # Tells NGINX the backend speaks plain HTTP (not HTTPS) — matches Istio IngressGateway port 80
     nginx.ingress.kubernetes.io/backend-protocol: "HTTP"
@@ -14,14 +14,14 @@ spec:
   rules:
     - http:
         paths:
-          { { - range .Values.paths } }
-          -  path: { { . } }
+          {{- range .Values.paths }}
+          - path: {{ . }}
             # Prefix = matches this path and anything under it
-            @2: Prefix
-             backend:
-               service:
-                 # The ExternalName service that bridges to istio-ingressgateway in istio-system
-                 name: istio-ingressgateway-proxy
-                 port:
-                   number: 80
-          { { - end } }
+            pathType: Prefix
+            backend:
+              service:
+                # The ExternalName service that bridges to istio-ingressgateway in istio-system
+                name: istio-ingressgateway-proxy
+                port:
+                  number: 80
+          {{- end }}
