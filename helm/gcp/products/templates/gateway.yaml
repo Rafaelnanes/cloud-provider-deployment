@@ -1,42 +1,25 @@
 apiVersion: gateway.networking.k8s.io/v1
-kind: Gateway
-metadata:
-  name: {{ .Release.Name }}-gateway
-  namespace: {{ .Release.Namespace }}
-spec:
-  gatewayClassName: {{ .Values.gateway.class }}
-  listeners:
-    - name: http
-      port: 80
-      protocol: HTTP
-      allowedRoutes:
-        namespaces:
-          from: Same
----
-apiVersion: gateway.networking.k8s.io/v1
 kind: HTTPRoute
 metadata:
   name: {{ .Release.Name }}-route
   namespace: {{ .Release.Namespace }}
 spec:
   parentRefs:
-    - name: {{ .Release.Name }}-gateway
+    - name: {{ .Values.gateway.name }}
   rules:
-      - matches:
+    - matches:
         - path:
             type: PathPrefix
-            value: /{{ .Values.domainPrefix }}
-        filters:
-          - type: URLRewrite
-            urlRewrite:
-              path:
-                type: ReplacePrefixMatch
-                replacePrefixMatch: /
-        backendRefs:
-          - name: {{ .Release.Name }}
-            port: {{ .Values.service.port }}
-
-
+            value: /{{ .Values.domainPrefix }}/{{ .Release.Name }}
+      filters:
+        - type: URLRewrite
+          urlRewrite:
+            path:
+              type: ReplacePrefixMatch
+              replacePrefixMatch: /{{ .Release.Name }}
+      backendRefs:
+        - name: {{ .Release.Name }}
+          port: {{ .Values.service.port }}
 ---
 apiVersion: networking.gke.io/v1
 kind: HealthCheckPolicy

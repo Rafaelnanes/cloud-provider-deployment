@@ -11,7 +11,7 @@ service:
   targetPort: 8080
 
 gateway:
-  class: gke-l7-global-external-managed
+  name: rbn-gateway
 
 domainPrefix: rbn
 

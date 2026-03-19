@@ -9,9 +9,11 @@ REPO       := docker-main
 IMAGE_TAG  := jvm
 REGISTRY   := $(REGION)-docker.pkg.dev/$(PROJECT_ID)/$(REPO)
 HELM_CHART    := ./$(APP)
+INFRA_CHART   := ./infra
 DOMAIN_PREFIX := rbn
+GATEWAY_NAME  := rbn-gateway
 
-.PHONY: help gcp-auth build push deploy deploy-only rollback verify clean
+.PHONY: help gcp-auth build push deploy deploy-only deploy-infra rollback verify clean
 
 help:
 	@Write-Host "Usage: make -f helm/gcp/Makefile <target> [APP=products] [NAMESPACE=dev]"
@@ -24,6 +26,7 @@ help:
 	@Write-Host "Build & Deploy:"
 	@Write-Host "  build           Build APP:jvm Docker image locally"
 	@Write-Host "  push            Tag and push image to Artifact Registry"
+	@Write-Host "  deploy-infra    Deploy shared infra chart (GKE Gateway) to NAMESPACE"
 	@Write-Host "  deploy          push + helm upgrade --install to NAMESPACE"
 	@Write-Host "  deploy-only     helm upgrade --install to NAMESPACE"
 	@Write-Host ""
@@ -55,6 +58,10 @@ push: build
 
 # ── Deploy ───────────────────────────────────────────────────────────────────
 
+deploy-infra:
+	@Write-Host "==> Deploying shared infra chart to namespace '$(NAMESPACE)'..."
+	helm upgrade --install infra $(INFRA_CHART) -n $(NAMESPACE) --create-namespace
+
 deploy-only:
 	@Write-Host "==> [$(APP)] Deploying Helm release to namespace '$(NAMESPACE)' on GCP... IMAGE_TAG='$(IMAGE_TAG)' - image.name='$(REGISTRY)/$(APP)' "
 	helm upgrade --install $(APP) $(HELM_CHART) -f $(HELM_CHART)/values.yaml --set image.name=$(REGISTRY)/$(APP) --set image.tag=$(IMAGE_TAG) -n $(NAMESPACE) --create-namespace
@@ -67,7 +74,7 @@ deploy: push deploy-only
 
 verify:
 	@Write-Host "==> [$(APP)] Fetching Gateway external IP..."
-	$$ip = kubectl get gateway $(APP)-gateway -n $(NAMESPACE) -o jsonpath='{.status.addresses[0].value}'; Write-Host "==> Sending request to http://$$ip/$(DOMAIN_PREFIX)/$(APP)..."; Invoke-WebRequest "http://$$ip/$(DOMAIN_PREFIX)/$(APP)" -UseBasicParsing
+	$$ip = kubectl get gateway $(GATEWAY_NAME) -n $(NAMESPACE) -o jsonpath='{.status.addresses[0].value}'; Write-Host "==> Sending request to http://$$ip/$(DOMAIN_PREFIX)/$(APP)..."; Invoke-WebRequest "http://$$ip/$(DOMAIN_PREFIX)/$(APP)" -UseBasicParsing
 
 rollback:
 	@Write-Host "==> [$(APP)] Rolling back $(APP)-$(NAMESPACE) in namespace '$(NAMESPACE)'..."

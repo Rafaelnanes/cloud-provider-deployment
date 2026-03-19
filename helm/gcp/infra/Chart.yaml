@@ -1,0 +1,5 @@
+apiVersion: v2
+name: infra
+description: Shared GCP infrastructure (Gateway, etc.)
+type: application
+version: 0.1.0
