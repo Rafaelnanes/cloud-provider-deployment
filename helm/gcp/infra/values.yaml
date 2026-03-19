@@ -1,3 +1,10 @@
 gateway:
   name: rbn-gateway
   class: gke-l7-global-external-managed
+  apiKey: ""
+  routes:
+    - name: products
+      pathPrefix: /rbn/products
+      rewriteTo: /products
+      backendService: products
+      backendPort: 80

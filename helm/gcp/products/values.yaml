@@ -10,11 +10,6 @@ service:
   port: 80
   targetPort: 8080
 
-gateway:
-  name: rbn-gateway
-
-domainPrefix: rbn
-
 readinessProbe:
   path: /actuator/health/readiness
   initialDelaySeconds: 10

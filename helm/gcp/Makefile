@@ -13,7 +13,7 @@ INFRA_CHART   := ./infra
 DOMAIN_PREFIX := rbn
 GATEWAY_NAME  := rbn-gateway
 
-.PHONY: help gcp-auth build push deploy deploy-only deploy-infra rollback verify clean
+.PHONY: help gcp-auth build push deploy deploy-only deploy-infra rollback verify clean clean-infra
 
 help:
 	@Write-Host "Usage: make -f helm/gcp/Makefile <target> [APP=products] [NAMESPACE=dev]"
@@ -34,6 +34,7 @@ help:
 	@Write-Host "  verify          Send test request to the GKE Gateway external IP"
 	@Write-Host "  rollback        Roll back APP Helm release to previous revision"
 	@Write-Host "  clean           Uninstall APP Helm release from NAMESPACE"
+	@Write-Host "  clean-infra     Uninstall infra (Gateway + HTTPRoute) from NAMESPACE"
 	@Write-Host ""
 	@Write-Host "Examples:"
 	@Write-Host "  make -f helm/gcp/Makefile deploy APP=products NAMESPACE=dev"
@@ -60,7 +61,7 @@ push: build
 
 deploy-infra:
 	@Write-Host "==> Deploying shared infra chart to namespace '$(NAMESPACE)'..."
-	helm upgrade --install infra $(INFRA_CHART) -n $(NAMESPACE) --create-namespace
+	helm upgrade --install infra $(INFRA_CHART) --set gateway.apiKey=$(NAMESPACE)-secret-key -n $(NAMESPACE) --create-namespace
 
 deploy-only:
 	@Write-Host "==> [$(APP)] Deploying Helm release to namespace '$(NAMESPACE)' on GCP... IMAGE_TAG='$(IMAGE_TAG)' - image.name='$(REGISTRY)/$(APP)' "
@@ -83,3 +84,7 @@ rollback:
 clean:
 	@Write-Host "==> [$(APP)] Uninstalling $(APP)-$(NAMESPACE) from namespace '$(NAMESPACE)'..."
 	helm uninstall $(APP) -n $(NAMESPACE)
+
+clean-infra:
+	@Write-Host "==> Uninstalling infra chart from namespace '$(NAMESPACE)'..."
+	helm uninstall infra -n $(NAMESPACE)

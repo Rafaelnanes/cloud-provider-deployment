@@ -114,16 +114,18 @@ learning path.
 
 ### Phase 9 — GCP Gateway & Service Mesh
 
-1. Replace the `LoadBalancer` service with a GKE Gateway (Kubernetes Gateway API)
-2. Define `HTTPRoute` to route traffic to the `products` ClusterIP service
-3. Understand the difference: Gateway API vs classic Ingress vs LoadBalancer
-4. Configure the `HTTPRoute` to only accept requests with the `/rbn/` path prefix
-5. Validate the `x-api-key` header at the Gateway level (via `HTTPRoute` filter or Istio `EnvoyFilter`)
-6. Install Istio on GKE and enable sidecar injection
-7. Expose `products` through an Istio `Gateway` + `VirtualService` on GKE
-8. Apply an Istio `AuthorizationPolicy` to allow traffic to `products` only from the Istio ingress gateway (deny all
-   other sources)
-9. Test traffic management (retries, timeouts) in the cloud environment
+1. Replace the `LoadBalancer` service with a GKE Gateway (Kubernetes Gateway API) ✅
+2. Define `HTTPRoute` to route traffic to the `products` ClusterIP service ✅
+3. Understand the difference: Gateway API vs classic Ingress vs LoadBalancer ✅
+4. Configure the `HTTPRoute` to only accept requests with the `/rbn/` path prefix ✅
+5. Validate the `x-api-key` header at the Gateway level (via `HTTPRoute` filter or Istio `EnvoyFilter`) ✅
+6. Understand Anthos Service Mesh (ASM): managed Istio on GKE via GKE Hub/Fleet (vs self-managed `istioctl`)
+7. Enable ASM on the GKE cluster using `asmcli` or the GKE Hub console
+8. Enable sidecar injection on target namespaces via ASM-managed labels
+9. Expose `products` through an Istio `Gateway` + `VirtualService` (same Istio APIs, now managed by ASM)
+10. Apply an Istio `AuthorizationPolicy` to allow traffic only from the Istio ingress gateway (deny all other sources)
+11. Test traffic management (retries, timeouts) and observe with Cloud Trace / Cloud Monitoring (ASM integrates
+    natively)
 
 ### Phase 10 — Google Secret Manager (GSM)
 
@@ -143,14 +145,14 @@ learning path.
 
 ## Tech Stack
 
-| Layer            | Technology                                                   |
-|------------------|--------------------------------------------------------------|
-| Language         | Java 21                                                      |
-| Framework        | Spring Boot 4                                                |
-| Build tool       | Gradle (Kotlin DSL)                                          |
-| Containerization | Docker                                                       |
-| Local Kubernetes | Minikube                                                     |
-| Package manager  | Helm                                                         |
-| Secrets manager  | Kubernetes Secrets + HashiCorp Vault + Google Secret Manager |
-| Service mesh     | Istio                                                        |
-| Cloud Kubernetes | TBD (EKS / GKE / AKS)                                        |
+| Layer            | Technology                                                          |
+|------------------|---------------------------------------------------------------------|
+| Language         | Java 21                                                             |
+| Framework        | Spring Boot 4                                                       |
+| Build tool       | Gradle (Kotlin DSL)                                                 |
+| Containerization | Docker                                                              |
+| Local Kubernetes | Minikube                                                            |
+| Package manager  | Helm                                                                |
+| Secrets manager  | Kubernetes Secrets + HashiCorp Vault + Google Secret Manager        |
+| Service mesh     | Istio (Minikube: self-managed) / Anthos Service Mesh (GKE: managed) |
+| Cloud Kubernetes | TBD (EKS / GKE / AKS)                                               |

@@ -1,26 +1,3 @@
-apiVersion: gateway.networking.k8s.io/v1
-kind: HTTPRoute
-metadata:
-  name: {{ .Release.Name }}-route
-  namespace: {{ .Release.Namespace }}
-spec:
-  parentRefs:
-    - name: {{ .Values.gateway.name }}
-  rules:
-    - matches:
-        - path:
-            type: PathPrefix
-            value: /{{ .Values.domainPrefix }}/{{ .Release.Name }}
-      filters:
-        - type: URLRewrite
-          urlRewrite:
-            path:
-              type: ReplacePrefixMatch
-              replacePrefixMatch: /{{ .Release.Name }}
-      backendRefs:
-        - name: {{ .Release.Name }}
-          port: {{ .Values.service.port }}
----
 apiVersion: networking.gke.io/v1
 kind: HealthCheckPolicy
 metadata:
