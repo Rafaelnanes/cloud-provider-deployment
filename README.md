@@ -32,55 +32,6 @@ A learning project focused on deploying Java Spring Boot applications to a cloud
 Understand the end-to-end process of building, containerizing, and deploying a microservice to a cloud provider — from
 local development to a running cloud environment.
 
-## Makefile
-
-A root `Makefile` automates all tasks for both apps. Run `make` to list available targets.
-
-### Variables
-
-| Variable     | Default          | Options                       |
-|--------------|------------------|-------------------------------|
-| `APP`        | `products`       | `products`, `users`           |
-| `NAMESPACE`  | `dev`            | `dev`, `prod`                 |
-| `VERIFY_URL` | *(set manually)* | HTTP URL from minikube tunnel |
-
-### Targets
-
-| Target             | Description                                            |
-|--------------------|--------------------------------------------------------|
-| `setup`            | Run `setup-istio` then `setup-namespaces`              |
-| `setup-istio`      | Install Istio with ingress gateway                     |
-| `setup-namespaces` | Create and label `dev`/`prod` namespaces               |
-| `build`            | Build `APP:jvm` Docker image inside Minikube           |
-| `deploy`           | Build and deploy Helm release for `APP` to `NAMESPACE` |
-| `deploy-all`       | Deploy both `products` and `users` to `NAMESPACE`      |
-| `verify`           | Send test request to `VERIFY_URL/rbn/APP`              |
-| `rollback`         | Roll back the Helm release for `APP`                   |
-| `clean`            | Uninstall the Helm release for `APP` from `NAMESPACE`  |
-| `clean-all`        | Uninstall both `products` and `users` from `NAMESPACE` |
-
-### Examples
-
-```bash
-# First-time cluster setup
-make setup
-
-# Build and deploy a single app
-make deploy APP=products NAMESPACE=dev
-make deploy APP=users NAMESPACE=dev
-
-# Deploy both apps at once
-make deploy-all NAMESPACE=dev
-
-# Verify (run minikube tunnel in a separate terminal first, then set VERIFY_URL)
-make verify APP=products VERIFY_URL=http://127.0.0.1:<port>
-make verify APP=users VERIFY_URL=http://127.0.0.1:<port>
-
-# Rollback and cleanup
-make rollback APP=users NAMESPACE=dev
-make clean-all NAMESPACE=dev
-```
-
 ## Project Structure
 
 ```
@@ -137,25 +88,6 @@ learning path.
 7. Observe traffic with Kiali, Jaeger (tracing), and Prometheus/Grafana (metrics)
 
 ### Phase 6 — RBAC & IAM
-
-| Concept | What it is | Where it lives | Coverable here |
-|---|---|---|---|
-| `ServiceAccount` | Identity for a pod/workload | Kubernetes | ✅ |
-| `Role` | Set of permissions scoped to a namespace | Kubernetes | ✅ |
-| `ClusterRole` | Set of permissions scoped cluster-wide | Kubernetes | ✅ |
-| `RoleBinding` | Attaches a `Role` to a `ServiceAccount` | Kubernetes | ✅ |
-| `ClusterRoleBinding` | Attaches a `ClusterRole` to a `ServiceAccount` | Kubernetes | ✅ |
-| `Secret` | Stores sensitive data inside the cluster | Kubernetes | ✅ |
-| `kubectl auth can-i` | Verify what a service account can do | Kubernetes | ✅ |
-| Namespace isolation | Roles in `dev` don't apply in `prod` | Kubernetes | ✅ |
-| GCP Service Account | Identity for a GCP workload (not K8s) | GCP IAM | ❌ |
-| GCP Roles | Predefined (`roles/viewer`) or custom permission sets | GCP IAM | ❌ |
-| IAM Policy Binding | Attaches a GCP role to a GCP service account | GCP IAM | ❌ |
-| Least Privilege | Granting only the permissions needed | Both | ✅ concept / ❌ GCP-specific |
-| Workload Identity | Links K8s `ServiceAccount` → GCP `ServiceAccount` | GCP + K8s | ❌ (GKE only) |
-| IAM Conditions | Conditional access based on resource/time/context | GCP IAM | ❌ |
-| Audit Logs | Who did what, when | GCP IAM | ❌ |
-| Secret Manager | Managed secrets service (replaces K8s `Secret`) | GCP | ❌ |
 
 1. Create a `ServiceAccount` per app (`products`, `users`) and attach it to each `Deployment`
 2. Define `Role` resources scoped to each namespace — allow only the verbs each app needs

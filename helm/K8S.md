@@ -152,6 +152,18 @@ Controller --> Cluster : rollout complete
 @enduml
 ```
 
+## Docker Build
+
+A multi-stage `Dockerfile` is used: Stage 1 compiles via GraalVM `nativeCompile`, Stage 2 runs the binary on `debian:bookworm-slim` (no JVM).
+
+### Layer caching
+
+Gradle wrapper and dependency descriptors are copied before source so Docker reuses the dependency resolution layer on subsequent builds when only source changes.
+
+### Going even smaller (optional)
+
+By default the native binary is dynamically linked against glibc. To use a `scratch` base image, add `--static --libc=musl` to the native compile args and switch to a musl-based build image.
+
 ### Useful Commands
 
 ```bash
