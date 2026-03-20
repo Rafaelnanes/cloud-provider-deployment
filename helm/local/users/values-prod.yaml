@@ -1,4 +1,4 @@
-replicaCount: 3
+replicaCount: 2
 
 domainPrefix: rbn/prod
 apiKey: prod-secret-key

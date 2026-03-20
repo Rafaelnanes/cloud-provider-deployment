@@ -14,7 +14,7 @@ INFRA_CHART   := ./infra
 DOMAIN_PREFIX := rbn
 GATEWAY_NAME  := rbn-gateway
 
-.PHONY: help gcp-auth build push deploy deploy-only deploy-infra rollback verify clean clean-infra \
+.PHONY: help gcp-auth build push deploy-all deploy deploy-infra rollback verify clean clean-infra \
         asm-apis asm-enable asm-inject-ns asm-mtls asm-authz asm-status asm-verify
 
 help:
@@ -29,8 +29,8 @@ help:
 	@Write-Host "  build           Build APP:jvm Docker image locally"
 	@Write-Host "  push            Tag and push image to Artifact Registry"
 	@Write-Host "  deploy-infra    Deploy shared infra chart (GKE Gateway) to NAMESPACE"
-	@Write-Host "  deploy          push + helm upgrade --install to NAMESPACE"
-	@Write-Host "  deploy-only     helm upgrade --install to NAMESPACE"
+	@Write-Host "  deploy-all         push + helm upgrade --install to NAMESPACE"
+	@Write-Host "  deploy          helm upgrade --install to NAMESPACE"
 	@Write-Host ""
 	@Write-Host "ASM (Anthos Service Mesh) - Steps 7-11:"
 	@Write-Host "  asm-apis        Enable required ASM GCP APIs (run before asm-enable)"
@@ -76,13 +76,13 @@ deploy-infra:
 	@Write-Host "==> Deploying shared infra chart to namespace '$(NAMESPACE)'..."
 	helm upgrade --install infra $(INFRA_CHART) --set gateway.apiKey=$(NAMESPACE)-secret-key -n $(NAMESPACE) --create-namespace
 
-deploy-only:
+deploy:
 	@Write-Host "==> [$(APP)] Deploying Helm release to namespace '$(NAMESPACE)' on GCP... IMAGE_TAG='$(IMAGE_TAG)' - image.name='$(REGISTRY)/$(APP)' "
-	helm upgrade --install $(APP) $(HELM_CHART) -f $(HELM_CHART)/values.yaml --set image.name=$(REGISTRY)/$(APP) --set image.tag=$(IMAGE_TAG) -n $(NAMESPACE) --create-namespace
+	helm upgrade --install $(APP) $(HELM_CHART) -f $(HELM_CHART)/values.yaml -f $(HELM_CHART)/values-$(NAMESPACE).yaml --set image.name=$(REGISTRY)/$(APP) --set image.tag=$(IMAGE_TAG) -n $(NAMESPACE) --create-namespace
 	@Write-Host "==> Waiting for rollout to complete..."
 	kubectl rollout status deployment/$(APP) -n $(NAMESPACE)
 
-deploy: push deploy-only
+deploy-full: push deploy
 
 # ── Utilities ────────────────────────────────────────────────────────────────
 
