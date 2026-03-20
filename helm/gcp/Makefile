@@ -15,7 +15,7 @@ DOMAIN_PREFIX := rbn
 GATEWAY_NAME  := rbn-gateway
 
 .PHONY: help gcp-auth build push deploy-all deploy deploy-infra rollback verify clean clean-infra \
-        asm-apis asm-enable asm-inject-ns asm-mtls asm-authz asm-status asm-verify
+        asm-inject-ns asm-mtls asm-authz asm-status asm-verify
 
 help:
 	@Write-Host "Usage: make -f helm/gcp/Makefile <target> [APP=products] [NAMESPACE=dev]"
@@ -32,10 +32,8 @@ help:
 	@Write-Host "  deploy-all         push + helm upgrade --install to NAMESPACE"
 	@Write-Host "  deploy          helm upgrade --install to NAMESPACE"
 	@Write-Host ""
-	@Write-Host "ASM (Anthos Service Mesh) - Steps 7-11:"
-	@Write-Host "  asm-apis        Enable required ASM GCP APIs (run before asm-enable)"
-	@Write-Host "  asm-enable      Enable ASM fleet feature on the project (Step 7)"
-	@Write-Host "  asm-inject-ns   Label NAMESPACE for Istio sidecar injection (Step 8)"
+	@Write-Host "ASM (Anthos Service Mesh):"
+	@Write-Host "  asm-inject-ns   Label NAMESPACE for sidecar injection"
 	@Write-Host "  asm-mtls        Apply PeerAuthentication (STRICT mTLS) to NAMESPACE (Step 9)"
 	@Write-Host "  asm-authz       Apply AuthorizationPolicy to NAMESPACE (Step 10)"
 	@Write-Host "  asm-status      Show ASM mesh status for the cluster (Step 11)"
@@ -50,7 +48,6 @@ help:
 	@Write-Host "Examples:"
 	@Write-Host "  make -f helm/gcp/Makefile deploy APP=products NAMESPACE=dev"
 	@Write-Host "  make -f helm/gcp/Makefile verify APP=products NAMESPACE=dev"
-	@Write-Host "  make -f helm/gcp/Makefile asm-enable"
 	@Write-Host "  make -f helm/gcp/Makefile asm-inject-ns NAMESPACE=dev"
 
 # ── Setup ────────────────────────────────────────────────────────────────────
@@ -104,21 +101,9 @@ clean-infra:
 
 # ── ASM (Anthos Service Mesh) ─────────────────────────────────────────────────
 
-asm-apis:
-	@Write-Host "==> Enabling required ASM APIs on project '$(PROJECT_ID)'..."
-	gcloud services enable meshconfig.googleapis.com meshca.googleapis.com --project $(PROJECT_ID)
-
-asm-enable:
-	@Write-Host "==> [Step 7] Enabling ASM fleet feature on project '$(PROJECT_ID)'..."
-	gcloud container fleet mesh enable --project $(PROJECT_ID)
-	@Write-Host "==> Registering cluster '$(CLUSTER_NAME)' to Fleet..."
-	gcloud container fleet memberships register $(CLUSTER_NAME) --gke-cluster $(REGION)/$(CLUSTER_NAME) --enable-workload-identity --project $(PROJECT_ID)
-	@Write-Host "==> Enabling managed ASM control plane on cluster '$(CLUSTER_NAME)'..."
-	gcloud container fleet mesh update --management automatic --memberships $(CLUSTER_NAME) --project $(PROJECT_ID) --location $(REGION)
-
 asm-inject-ns:
 	@Write-Host "==> [Step 8] Labelling namespace '$(NAMESPACE)' for Istio sidecar injection..."
-	kubectl label namespace $(NAMESPACE) istio-injection=enabled --overwrite
+	kubectl label namespace $(NAMESPACE) istio.io/rev=asm-managed --overwrite
 	kubectl get namespace $(NAMESPACE) --show-labels
 
 asm-mtls:
@@ -136,5 +121,6 @@ asm-status:
 	gcloud container fleet mesh describe --project $(PROJECT_ID)
 
 asm-verify:
-	@Write-Host "==> [Step 11] Checking sidecar proxy status for namespace '$(NAMESPACE)'..."
-	istioctl proxy-status -n $(NAMESPACE)
+	@Write-Host "==> [Step 11] Checking pod/sidecar status for namespace '$(NAMESPACE)'..."
+	kubectl get pods -n $(NAMESPACE) -o wide
+	kubectl get pods -n $(NAMESPACE) -o jsonpath="{range .items[*]}{.metadata.name}{'\t'}{range .spec.containers[*]}{.name}{' '}{end}{'\n'}{end}"
