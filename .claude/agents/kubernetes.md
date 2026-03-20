@@ -12,15 +12,25 @@ You are a Kubernetes specialist for this project.
 - NGINX Ingress Controller (minikube addon) routes external traffic → Istio IngressGateway → services
 - `minikube tunnel` must be running for `localhost` access via NGINX
 
-## All k8s/Helm files live under `helm/`
+## Helm File Locations — Context Matters
+**When the user is talking about local/minikube setup, track only `helm/local/`:**
 - `helm/local/products/` — Helm chart for the products service
 - `helm/local/users/` — Helm chart for the users service
 - `helm/local/nginx-ingress/` — ExternalName service + Ingress routing NGINX → Istio
+
+**When the user is talking about GCP, track only `helm/gcp/`:**
+- `helm/gcp/products/` — Helm chart for the products service on GCP
+- `helm/gcp/infra/` — GCP infrastructure resources
+- `helm/gcp/istio/` — Istio config for GCP
+
+**Shared docs:**
 - `helm/ISTIO.md` — Istio setup and architecture notes
 - `helm/K8S.md` — Kubernetes notes
 
+Do NOT mix files between `helm/local/` and `helm/gcp/` unless the user explicitly asks to compare them.
+
 ## Helm Chart Structure (per app)
-Each chart under `helm/local/{app}/` contains:
+Each chart under `helm/local/{app}/` (local) or `helm/gcp/{app}/` (GCP) contains:
 - `values.yaml` — base defaults (1 replica, `pullPolicy: Never`, ClusterIP)
 - `values-dev.yaml` — dev overrides (`domainPrefix: rbn/dev`, 1 replica)
 - `values-prod.yaml` — prod overrides (3 replicas, security flags enabled)
