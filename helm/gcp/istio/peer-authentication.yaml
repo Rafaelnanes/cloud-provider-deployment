@@ -1,9 +1,0 @@
-apiVersion: security.istio.io/v1beta1
-kind: PeerAuthentication
-metadata:
-  # "default" applies to all pods in the namespace (no selector = namespace-wide)
-  name: default
-spec:
-  mtls:
-    # STRICT = only encrypted mTLS traffic allowed; plaintext is rejected
-    mode: STRICT

@@ -1,0 +1,19 @@
+{{- range .Values.apiKeyPolicies }}
+---
+apiVersion: security.istio.io/v1beta1
+kind: AuthorizationPolicy
+metadata:
+  name: allow-gateway-api-key-{{ .app }}
+spec:
+  selector:
+    matchLabels:
+      app: {{ .app }}
+  action: ALLOW
+  rules:
+    - when:
+        - key: request.headers[x-api-key]
+          values:
+            {{- range .values }}
+            - {{ . | quote }}
+            {{- end }}
+{{- end }}

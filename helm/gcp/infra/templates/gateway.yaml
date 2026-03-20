@@ -27,9 +27,6 @@ spec:
         - path:
             type: PathPrefix
             value: {{ .pathPrefix }}
-          headers:
-            - name: x-api-key
-              value: {{ required "gateway.apiKey is required" $.Values.gateway.apiKey }}
       filters:
         - type: URLRewrite
           urlRewrite:

@@ -1,0 +1,4 @@
+apiKeyPolicies:
+  - app: products
+    values:
+      - prod-secret-key

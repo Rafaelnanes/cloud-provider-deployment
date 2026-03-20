@@ -11,10 +11,11 @@ IMAGE_TAG  := jvm
 REGISTRY   := $(REGION)-docker.pkg.dev/$(PROJECT_ID)/$(REPO)
 HELM_CHART    := ./$(APP)
 INFRA_CHART   := ./infra
+ISTIO_CHART   := ./istio
 DOMAIN_PREFIX := rbn
 GATEWAY_NAME  := rbn-gateway
 
-.PHONY: help gcp-auth build push deploy-all deploy deploy-infra rollback verify clean clean-infra \
+.PHONY: help gcp-auth build push deploy-all deploy deploy-infra deploy-istio rollback verify clean clean-infra \
         asm-inject-ns asm-mtls asm-authz asm-status asm-verify
 
 help:
@@ -29,6 +30,7 @@ help:
 	@Write-Host "  build           Build APP:jvm Docker image locally"
 	@Write-Host "  push            Tag and push image to Artifact Registry"
 	@Write-Host "  deploy-infra    Deploy shared infra chart (GKE Gateway) to NAMESPACE"
+	@Write-Host "  deploy-istio    Deploy Istio policies chart to NAMESPACE (uses values-NAMESPACE.yaml)"
 	@Write-Host "  deploy-all         push + helm upgrade --install to NAMESPACE"
 	@Write-Host "  deploy          helm upgrade --install to NAMESPACE"
 	@Write-Host ""
@@ -71,7 +73,11 @@ push: build
 
 deploy-infra:
 	@Write-Host "==> Deploying shared infra chart to namespace '$(NAMESPACE)'..."
-	helm upgrade --install infra $(INFRA_CHART) --set gateway.apiKey=$(NAMESPACE)-secret-key -n $(NAMESPACE) --create-namespace
+	helm upgrade --install infra $(INFRA_CHART) -n $(NAMESPACE) --create-namespace
+
+deploy-istio:
+	@Write-Host "==> Deploying Istio policies chart to namespace '$(NAMESPACE)'..."
+	helm upgrade --install istio-policies $(ISTIO_CHART) -f $(ISTIO_CHART)/values-$(NAMESPACE).yaml -n $(NAMESPACE) --create-namespace
 
 deploy:
 	@Write-Host "==> [$(APP)] Deploying Helm release to namespace '$(NAMESPACE)' on GCP... IMAGE_TAG='$(IMAGE_TAG)' - image.name='$(REGISTRY)/$(APP)' "
@@ -112,8 +118,8 @@ asm-mtls:
 	kubectl get peerauthentication -n $(NAMESPACE)
 
 asm-authz:
-	@Write-Host "==> [Step 10] Applying AuthorizationPolicy to namespace '$(NAMESPACE)'..."
-	kubectl apply -f ./istio/authorization-policy.yaml -n $(NAMESPACE)
+	@Write-Host "==> [Step 10] Deploying Istio AuthorizationPolicies to namespace '$(NAMESPACE)'..."
+	$(MAKE) -f helm/gcp/Makefile deploy-istio NAMESPACE=$(NAMESPACE)
 	kubectl get authorizationpolicy -n $(NAMESPACE)
 
 asm-status:
