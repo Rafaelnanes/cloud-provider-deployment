@@ -20,7 +20,7 @@ help:
 	@echo "  setup-nginx-routing Deploy nginx-ingress Helm chart (ExternalName + Ingress)"
 	@echo ""
 	@echo "Build & Deploy:"
-	@echo "  build              Build APP:jvm image directly inside minikube's Docker daemon"
+	@echo "  build              Build APP:jvm image via Jib into minikube daemon"
 	@echo "  deploy             Build and deploy APP to NAMESPACE"
 	@echo "  deploy-all         Build and deploy all apps to NAMESPACE"
 	@echo ""
@@ -74,8 +74,8 @@ setup: setup-istio setup-namespaces setup-nginx setup-nginx-routing
 # Phase 2 - Build and deploy
 
 build:
-	@echo "==> [$(APP)] - Building $(APP):jvm image inside minikube..."
-	eval $$(minikube docker-env) && docker build -f ./apps/$(APP)/docker/Dockerfile-jvm -t $(APP):jvm ./apps/$(APP)
+	@echo "==> [$(APP)] - Building $(APP):jvm image via Jib into minikube daemon..."
+	eval $$(minikube docker-env) && cd ./apps/$(APP) && ./gradlew jibDockerBuild
 
 deploy: build
 	@echo "==> [$(APP)] Deploying Helm release to namespace '$(NAMESPACE)'..."

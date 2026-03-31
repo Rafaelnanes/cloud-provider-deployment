@@ -2,7 +2,7 @@ plugins {
 	java
 	id("org.springframework.boot") version "4.0.3"
 	id("io.spring.dependency-management") version "1.1.7"
-	id("org.graalvm.buildtools.native") version "0.10.4"
+	id("com.google.cloud.tools.jib") version "3.4.5"
 }
 
 group = "com.example"
@@ -28,3 +28,11 @@ dependencies {
 	testRuntimeOnly("org.junit.platform:junit-platform-launcher")
 }
 
+jib {
+	from { image = "eclipse-temurin:21-jre-alpine" }
+	to { image = "products:jvm" }
+	container {
+		ports = listOf("8080")
+		jvmFlags = listOf("-XX:+UseContainerSupport", "-XX:MaxRAMPercentage=75.0")
+	}
+}
