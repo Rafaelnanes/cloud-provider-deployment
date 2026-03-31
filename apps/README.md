@@ -1,13 +1,14 @@
 # Apps
 
-Two independent Spring Boot 4 / Java 21 services. Both are deployable units in the learning path — `products` is the primary target; `users` exists to demonstrate inter-service communication.
+Three Spring Boot 4 / Java 21 apps. `products` is the primary REST API; `users` demonstrates inter-service communication; `batch` demonstrates Kubernetes Job and CronJob.
 
 ## Services
 
-| Service    | Base path   | Port | Description                              |
+| App        | Base path   | Port | Description                              |
 |------------|-------------|------|------------------------------------------|
 | `products` | `/products` | 8080 | Product catalogue — standalone REST API  |
 | `users`    | `/users`    | 8080 | User service — calls `products` for data |
+| `batch`    | —           | —    | Batch runner — exits after task completes (no HTTP server) |
 
 ## Endpoints
 
@@ -27,6 +28,17 @@ Two independent Spring Boot 4 / Java 21 services. Both are deployable units in t
 | POST   | `/users/{userId}/products/{productId}` | Add a product to a user             |
 | GET    | `/users/env-info`                 | Return injected `ENV_INFO`               |
 
+### batch
+
+Runs one of two tasks selected via `TASK_TYPE` env var:
+
+| `TASK_TYPE` | Description                          |
+|-------------|--------------------------------------|
+| `report`    | Processes N records and logs a summary |
+| `cleanup`   | Simulates deletion of expired records |
+
+`RECORD_COUNT` controls how many records are processed (default: `100`).
+
 ## Inter-service communication
 
 `users` calls `products` via in-cluster DNS using `ProductsClient` (Spring `RestClient`).
@@ -40,9 +52,8 @@ http://products-{namespace}:8080
 
 ```bash
 # From apps/{service}/
-./gradlew bootJar        # build JAR
-./gradlew test           # run tests
-./gradlew nativeCompile  # GraalVM native binary (slow, CI only)
+./gradlew bootJar   # build JAR
+./gradlew test      # run tests
 ```
 
 Or via Makefile from the project root:
@@ -50,15 +61,5 @@ Or via Makefile from the project root:
 ```bash
 make build APP=products
 make build APP=users
+make build APP=batch
 ```
-
-## Docker
-
-Each app has two `Dockerfile` variants under `apps/{service}/docker/`:
-
-| File             | Base image              | Use case            |
-|------------------|-------------------------|---------------------|
-| `Dockerfile-jvm` | `eclipse-temurin:21`    | Default, fast build |
-| `Dockerfile-aot` | GraalVM → debian-slim   | Smaller image, slow build |
-
-See `helm/K8S.md` for Docker build notes (layer caching, musl/scratch option).
