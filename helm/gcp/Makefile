@@ -27,8 +27,7 @@ help:
 	@Write-Host "  gcp-auth        Configure Docker to authenticate with Artifact Registry"
 	@Write-Host ""
 	@Write-Host "Build & Deploy:"
-	@Write-Host "  build           Build APP:jvm Docker image locally"
-	@Write-Host "  push            Tag and push image to Artifact Registry"
+	@Write-Host "  build           Build and push APP:jvm to Artifact Registry via Jib"
 	@Write-Host "  deploy-infra    Deploy shared infra chart (GKE Gateway) to NAMESPACE"
 	@Write-Host "  deploy-istio    Deploy Istio policies chart to NAMESPACE (uses values-NAMESPACE.yaml)"
 	@Write-Host "  deploy-all         push + helm upgrade --install to NAMESPACE"
@@ -61,13 +60,8 @@ gcp-auth:
 # ── Build & Push ─────────────────────────────────────────────────────────────
 
 build:
-	@Write-Host "==> [$(APP)] Building $(APP):$(IMAGE_TAG) image..."
-	docker build -f ../../apps/$(APP)/docker/Dockerfile-jvm -t $(APP):$(IMAGE_TAG) ../../apps/$(APP)
-
-push: build
-	@Write-Host "==> [$(APP)] Tagging and pushing to $(REGISTRY)..."
-	docker tag $(APP):$(IMAGE_TAG) $(REGISTRY)/$(APP):$(IMAGE_TAG)
-	docker push $(REGISTRY)/$(APP):$(IMAGE_TAG)
+	@Write-Host "==> [$(APP)] Building and pushing $(APP):$(IMAGE_TAG) to $(REGISTRY) via Jib..."
+	cd ../../apps/$(APP) && ./gradlew jib -Pgcp
 
 # ── Deploy ───────────────────────────────────────────────────────────────────
 
@@ -85,7 +79,7 @@ deploy:
 	@Write-Host "==> Waiting for rollout to complete..."
 	kubectl rollout status deployment/$(APP) -n $(NAMESPACE)
 
-deploy-full: push deploy
+deploy-full: build deploy
 
 # ── Utilities ────────────────────────────────────────────────────────────────
 
