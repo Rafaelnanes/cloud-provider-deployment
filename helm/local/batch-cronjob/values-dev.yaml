@@ -1,0 +1,7 @@
+config:
+  taskType: report
+  recordCount: "50"
+  logLevelApp: DEBUG
+
+cronjob:
+  schedule: "*/2 * * * *"

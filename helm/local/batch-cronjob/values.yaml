@@ -1,0 +1,20 @@
+image:
+  name: batch
+  tag: jvm
+  pullPolicy: Never
+
+config:
+  taskType: report
+  recordCount: "100"
+  logLevelRoot: INFO
+  logLevelApp: DEBUG
+
+cronjob:
+  schedule: "*/2 * * * *"
+  successfulJobsHistoryLimit: 3
+  failedJobsHistoryLimit: 1
+  concurrencyPolicy: Forbid
+  startingDeadlineSeconds: 60
+  backoffLimit: 2
+  ttlSecondsAfterFinished: 300
+  activeDeadlineSeconds: 120

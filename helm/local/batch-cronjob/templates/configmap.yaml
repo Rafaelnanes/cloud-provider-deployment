@@ -1,0 +1,9 @@
+apiVersion: v1
+kind: ConfigMap
+metadata:
+  name: {{ .Release.Name }}-config
+data:
+  TASK_TYPE: {{ .Values.config.taskType }}
+  RECORD_COUNT: {{ .Values.config.recordCount | quote }}
+  LOG_LEVEL_ROOT: {{ .Values.config.logLevelRoot }}
+  LOG_LEVEL_APP: {{ .Values.config.logLevelApp }}

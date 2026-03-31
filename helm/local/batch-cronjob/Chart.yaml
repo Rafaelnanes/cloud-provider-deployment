@@ -1,0 +1,6 @@
+apiVersion: v2
+name: batch-cronjob
+description: Scheduled batch CronJob — runs a task on a recurring schedule
+type: application
+version: 0.1.0
+appVersion: "1.0.0"

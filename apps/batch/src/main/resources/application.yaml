@@ -1,0 +1,14 @@
+spring:
+  application:
+    name: batch
+  main:
+    web-application-type: none
+
+batch:
+  taskType: ${TASK_TYPE:report}
+  recordCount: ${RECORD_COUNT:100}
+
+logging:
+  level:
+    root: ${LOG_LEVEL_ROOT:INFO}
+    com.batch: ${LOG_LEVEL_APP:DEBUG}

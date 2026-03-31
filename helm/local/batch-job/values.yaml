@@ -1,0 +1,15 @@
+image:
+  name: batch
+  tag: jvm
+  pullPolicy: Never
+
+config:
+  taskType: cleanup
+  recordCount: "100"
+  logLevelRoot: INFO
+  logLevelApp: DEBUG
+
+job:
+  backoffLimit: 2
+  ttlSecondsAfterFinished: 300
+  activeDeadlineSeconds: 120

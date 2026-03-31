@@ -2,7 +2,8 @@ APP        := products
 NAMESPACE  := dev
 HELM_CHART := ./helm/local/$(APP)
 
-.PHONY: build deploy rollback verify verify-products verify-users verify-all verify-networkpolicy clean setup-namespaces setup-istio setup cluster-create setup-nginx setup-nginx-routing help
+.PHONY: build deploy rollback verify verify-products verify-users verify-all verify-networkpolicy clean setup-namespaces setup-istio setup cluster-create setup-nginx setup-nginx-routing help \
+        deploy-job deploy-cronjob trigger-job watch-jobs clean-job clean-cronjob
 
 help:
 	@echo "Usage: make <target> [APP=products|users] [NAMESPACE=dev|prod]"
@@ -33,10 +34,21 @@ help:
 	@echo "  clean              Uninstall APP release from NAMESPACE"
 	@echo "  clean-all          Uninstall all releases from NAMESPACE"
 	@echo ""
+	@echo "Batch:"
+	@echo "  deploy-job         Build and deploy one-off Job (cleanup task) to NAMESPACE"
+	@echo "  deploy-cronjob     Build and deploy scheduled CronJob (report task) to NAMESPACE"
+	@echo "  trigger-job        Manually trigger a run from the CronJob"
+	@echo "  watch-jobs         Watch Job status in NAMESPACE"
+	@echo "  clean-job          Uninstall batch-job release from NAMESPACE"
+	@echo "  clean-cronjob      Uninstall batch-cronjob release from NAMESPACE"
+	@echo ""
 	@echo "Examples:"
 	@echo "  make deploy APP=users NAMESPACE=dev"
 	@echo "  make deploy-all NAMESPACE=prod"
 	@echo "  make verify APP=products NAMESPACE=dev"
+	@echo "  make deploy-job NAMESPACE=dev"
+	@echo "  make deploy-cronjob NAMESPACE=dev"
+	@echo "  make trigger-job NAMESPACE=dev"
 
 # Phase 1 - Install required components
 
@@ -123,3 +135,46 @@ clean:
 clean-all:
 	$(MAKE) clean APP=products NAMESPACE=$(NAMESPACE)
 	$(MAKE) clean APP=users NAMESPACE=$(NAMESPACE)
+
+# ── Batch: Job ────────────────────────────────────────────────────────────────
+
+deploy-job:
+	@echo "==> [batch-job] Building batch:jvm image..."
+	eval $$(minikube docker-env) && cd ./apps/batch && ./gradlew jibDockerBuild
+	@echo "==> [batch-job] Deploying one-off Job to namespace '$(NAMESPACE)'..."
+	helm upgrade --install batch-job-$(NAMESPACE) ./helm/local/batch-job \
+		-f ./helm/local/batch-job/values.yaml \
+		-f ./helm/local/batch-job/values-$(NAMESPACE).yaml \
+		-n $(NAMESPACE)
+
+clean-job:
+	@echo "==> [batch-job] Uninstalling batch-job-$(NAMESPACE)..."
+	helm uninstall batch-job-$(NAMESPACE) -n $(NAMESPACE)
+
+# ── Batch: CronJob ────────────────────────────────────────────────────────────
+
+deploy-cronjob:
+	@echo "==> [batch-cronjob] Building batch:jvm image..."
+	eval $$(minikube docker-env) && cd ./apps/batch && ./gradlew jibDockerBuild
+	@echo "==> [batch-cronjob] Deploying CronJob to namespace '$(NAMESPACE)'..."
+	helm upgrade --install batch-cronjob-$(NAMESPACE) ./helm/local/batch-cronjob \
+		-f ./helm/local/batch-cronjob/values.yaml \
+		-f ./helm/local/batch-cronjob/values-$(NAMESPACE).yaml \
+		-n $(NAMESPACE)
+	@echo "==> CronJob deployed. First run in up to 2 min."
+	@echo "    Watch: make watch-jobs NAMESPACE=$(NAMESPACE)"
+
+trigger-job:
+	@echo "==> Triggering one-off Job from CronJob in namespace '$(NAMESPACE)'..."
+	kubectl create job \
+		--from=cronjob/batch-cronjob-$(NAMESPACE)-cronjob \
+		batch-manual-$(shell date +%s) \
+		-n $(NAMESPACE)
+	@echo "    Watch: make watch-jobs NAMESPACE=$(NAMESPACE)"
+
+watch-jobs:
+	kubectl get jobs -n $(NAMESPACE) -w
+
+clean-cronjob:
+	@echo "==> [batch-cronjob] Uninstalling batch-cronjob-$(NAMESPACE)..."
+	helm uninstall batch-cronjob-$(NAMESPACE) -n $(NAMESPACE)

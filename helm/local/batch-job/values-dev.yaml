@@ -1,0 +1,4 @@
+config:
+  taskType: cleanup
+  recordCount: "30"
+  logLevelApp: DEBUG
