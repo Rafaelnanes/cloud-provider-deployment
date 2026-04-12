@@ -3,17 +3,17 @@
 apiVersion: security.istio.io/v1beta1
 kind: AuthorizationPolicy
 metadata:
-  name: allow-gateway-api-key-{{ .app }}
+  name: allow-gateway-api-key-{{ .app }} # one policy per app entry in values
 spec:
   selector:
     matchLabels:
-      app: {{ .app }}
+      app: {{ .app }} # targets pods with this label in the release namespace
   action: ALLOW
   rules:
     - when:
-        - key: request.headers[x-api-key]
+        - key: request.headers[x-api-key] # enforces API key header check
           values:
             {{- range .values }}
-            - {{ . | quote }}
+            - {{ . | quote }} # valid key values defined per environment in values
             {{- end }}
 {{- end }}

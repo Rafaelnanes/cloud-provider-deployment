@@ -5,11 +5,14 @@ metadata:
 spec:
   selector:
     matchLabels:
-      app: products
+      app: products # targets the products pods only
   action: ALLOW
   rules:
     - from:
         - source:
             principals:
-              - "cluster.local/ns/dev/sa/users"
-              - "cluster.local/ns/prod/sa/users"
+              - "cluster.local/ns/dev/sa/users" # users SA in dev namespace
+              - "cluster.local/ns/prod/sa/users" # users SA in prod namespace
+    - to:
+        - operation:
+            paths: ["/actuator/health/readiness"] # allows GCP load balancer health checks (no identity)
