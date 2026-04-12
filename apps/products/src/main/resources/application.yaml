@@ -1,15 +1,20 @@
 spring:
   application:
     name: products
+  config:
+    import: "sm://"
 
-service.envInfo: ${ENV_INFO}
+service.envInfo: ${ENV_INFO:any}
 
 logging:
   level:
     root: ${LOG_LEVEL_ROOT:INFO}
     com.product: ${LOG_LEVEL_APP:DEBUG}
 
-server.port: ${SERVER_PORT}
+server.port: ${SERVER_PORT:8080}
+
+gsm:
+  my-secret: ${sm://projects/402035851384/secrets/my-secret-dev-key}
 
 management:
   endpoints:
@@ -20,3 +25,12 @@ management:
     health:
       probes:
         enabled: true
+
+---
+spring:
+  config:
+    activate:
+      on-profile: prod
+
+gsm:
+  my-secret: ${sm://projects/402035851384/secrets/my-secret-prod-key}

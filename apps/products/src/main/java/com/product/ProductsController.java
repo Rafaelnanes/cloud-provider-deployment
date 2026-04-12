@@ -19,6 +19,8 @@ public class ProductsController {
   private final List<Product> ALL_PRODUCTS = List.of(new Product(1, "bag"), new Product(2, "pencil"), new Product(3, "bottle"));
   @Value("${service.envInfo}")
   private String envInfo;
+  @Value("${gsm.my-secret}")
+  private String mySecret;
 
   @GetMapping
   public List<Product> getAllProducts() {
@@ -38,6 +40,12 @@ public class ProductsController {
   public String getEnvInfo() {
     log.info("GET /products/env-info -> envInfo={}", envInfo);
     return envInfo;
+  }
+
+  @GetMapping("/my-secret")
+  public String getSecret() {
+    log.info("GET /products/secret -> envInfo={}", mySecret);
+    return mySecret;
   }
 
 }

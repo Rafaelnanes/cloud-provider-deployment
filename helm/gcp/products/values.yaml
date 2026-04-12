@@ -20,6 +20,12 @@ livenessProbe:
   initialDelaySeconds: 10
   periodSeconds: 10
 
+springProfile: dev
+
+gcp:
+  project: project-3cec667f-8135-4778-9b4
+  serviceAccount: products-sa
+
 config:
   envInfo: gcp
   serverPort: 8080
