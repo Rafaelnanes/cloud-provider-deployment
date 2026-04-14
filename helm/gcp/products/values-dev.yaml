@@ -1,4 +1,6 @@
 replicaCount: 1
 
+springProfile: dev
+
 config:
   envInfo: gcp-dev

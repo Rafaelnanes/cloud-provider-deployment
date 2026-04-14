@@ -7,3 +7,4 @@ data:
   SERVER_PORT: {{ .Values.config.serverPort | quote }}
   LOG_LEVEL_ROOT: {{ .Values.config.logLevelRoot }}
   LOG_LEVEL_APP: {{ .Values.config.logLevelApp }}
+  SPRING_PROFILES_ACTIVE: {{ .Values.springProfile }}

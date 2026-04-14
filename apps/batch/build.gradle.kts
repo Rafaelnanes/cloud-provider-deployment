@@ -31,8 +31,8 @@ val gcpRegistry = "us-central1-docker.pkg.dev/project-3cec667f-8135-4778-9b4/doc
 jib {
 	from { image = "eclipse-temurin:21-jre-alpine" }
 	to {
-		image = if (project.hasProperty("gcp")) "$gcpRegistry/batch:jvm"
-		        else "batch:jvm"
+		image = if (project.hasProperty("gcp")) "$gcpRegistry/batch:${project.version}"
+		        else "batch:${project.version}"
 	}
 	container {
 		jvmFlags = listOf("-XX:+UseContainerSupport", "-XX:MaxRAMPercentage=75.0")

@@ -1,4 +1,6 @@
 replicaCount: 2
 
+springProfile: prod
+
 config:
   envInfo: gcp-prod

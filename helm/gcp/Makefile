@@ -7,7 +7,7 @@ REGION       := us-central1
 PROJECT_ID   := project-3cec667f-8135-4778-9b4
 CLUSTER_NAME := gke-cluster
 REPO         := docker-main
-IMAGE_TAG  := jvm
+IMAGE_TAG  := 0.0.1-no-gsm
 REGISTRY   := $(REGION)-docker.pkg.dev/$(PROJECT_ID)/$(REPO)
 HELM_CHART    := ./$(APP)
 INFRA_CHART   := ./infra
@@ -61,7 +61,7 @@ gcp-auth:
 
 build:
 	@Write-Host "==> [$(APP)] Building and pushing $(APP):$(IMAGE_TAG) to $(REGISTRY) via Jib..."
-	cd ../../apps/$(APP) && ./gradlew jib -Pgcp
+	cd ../../apps/$(APP); ./gradlew jib -Pgcp
 
 # ── Deploy ───────────────────────────────────────────────────────────────────
 
