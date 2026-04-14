@@ -1,5 +1,7 @@
 replicaCount: 1
 
+springProfile: minikube
+
 image:
   name: products
   tag: jvm

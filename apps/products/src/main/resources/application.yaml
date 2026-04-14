@@ -2,7 +2,7 @@ spring:
   application:
     name: products
   config:
-    import: "sm://"
+    import: "optional:sm://"
 
 service.envInfo: ${ENV_INFO:any}
 
@@ -34,3 +34,12 @@ spring:
 
 gsm:
   my-secret: ${sm://projects/402035851384/secrets/my-secret-prod-key}
+
+---
+spring:
+  config:
+    activate:
+      on-profile: minikube
+
+gsm:
+  my-secret: "my-secret-value"

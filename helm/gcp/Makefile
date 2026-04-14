@@ -3,12 +3,12 @@ SHELL      = powershell.exe
 
 APP          := products
 NAMESPACE    := dev
-REGION       := us-central1
+REGION       := us-central1-a
 PROJECT_ID   := project-3cec667f-8135-4778-9b4
 CLUSTER_NAME := gke-cluster
 REPO         := docker-main
-IMAGE_TAG  := jvm
-REGISTRY   := $(REGION)-docker.pkg.dev/$(PROJECT_ID)/$(REPO)
+IMAGE_TAG  := 0.0.1-SNAPSHOT-gsm
+REGISTRY   := us-central1-docker.pkg.dev/$(PROJECT_ID)/$(REPO)
 HELM_CHART    := ./$(APP)
 INFRA_CHART   := ./infra
 ISTIO_CHART   := ./istio
@@ -16,12 +16,18 @@ DOMAIN_PREFIX := rbn
 GATEWAY_NAME  := rbn-gateway
 
 .PHONY: help gcp-auth build push deploy-all deploy deploy-infra deploy-istio rollback verify clean clean-infra \
-        asm-inject-ns asm-mtls asm-authz asm-status asm-verify
+        asm-inject-ns asm-mtls asm-authz asm-status asm-verify \
+        cluster-create cluster-create-standard cluster-credentials
 
 help:
 	@Write-Host "Usage: make -f helm/gcp/Makefile <target> [APP=products] [NAMESPACE=dev]"
 	@Write-Host ""
 	@Write-Host "Defaults: APP=$(APP)  NAMESPACE=$(NAMESPACE)"
+	@Write-Host ""
+	@Write-Host "Cluster:"
+	@Write-Host "  cluster-create          Create GKE Autopilot cluster (default, no node management)"
+	@Write-Host "  cluster-create-standard Create GKE Standard cluster (supports Workload Identity + GSM)"
+	@Write-Host "  cluster-credentials     Fetch kubeconfig for the Standard cluster"
 	@Write-Host ""
 	@Write-Host "Setup:"
 	@Write-Host "  gcp-auth        Configure Docker to authenticate with Artifact Registry"
@@ -51,6 +57,22 @@ help:
 	@Write-Host "  make -f helm/gcp/Makefile verify APP=products NAMESPACE=dev"
 	@Write-Host "  make -f helm/gcp/Makefile asm-inject-ns NAMESPACE=dev"
 
+# ── Cluster ──────────────────────────────────────────────────────────────────
+
+# Default: Autopilot — fully managed nodes, no Workload Identity for pods, no GSM support
+cluster-create:
+	@Write-Host "==> Creating GKE Autopilot cluster 'autopilot-cluster-1'..."
+	gcloud beta container --project "$(PROJECT_ID)" clusters create-auto "autopilot-cluster-1" --region "$(REGION)" --release-channel "regular" --enable-dns-access --enable-k8s-tokens-via-dns --enable-k8s-certs-via-dns --enable-ip-access --no-enable-google-cloud-access --network "projects/$(PROJECT_ID)/global/networks/default" --subnetwork "projects/$(PROJECT_ID)/regions/$(REGION)/subnetworks/default" --cluster-ipv4-cidr "/17" --binauthz-evaluation-mode=DISABLED --fleet-project=$(PROJECT_ID)
+
+# Standard: 1 node e2-standard-2, Workload Identity enabled — required for GSM + External Secrets Operator
+cluster-create-standard:
+	@Write-Host "==> Creating GKE Standard cluster '$(CLUSTER_NAME)' in zone $(REGION)-a..."
+	gcloud container clusters create "$(CLUSTER_NAME)" --project "$(PROJECT_ID)" --zone "$(REGION)-a" --release-channel "regular" --machine-type "e2-standard-2" --num-nodes 1 --workload-pool="$(PROJECT_ID).svc.id.goog" --gateway-api=standard --fleet-project="$(PROJECT_ID)" --enable-ip-alias --enable-autoupgrade --enable-autorepair --binauthz-evaluation-mode=DISABLED
+
+cluster-credentials:
+	@Write-Host "==> Fetching credentials for Standard cluster '$(CLUSTER_NAME)'..."
+	gcloud container clusters get-credentials "$(CLUSTER_NAME)" --zone "$(REGION)-a" --project "$(PROJECT_ID)"
+
 # ── Setup ────────────────────────────────────────────────────────────────────
 
 gcp-auth:
@@ -61,7 +83,7 @@ gcp-auth:
 
 build:
 	@Write-Host "==> [$(APP)] Building and pushing $(APP):$(IMAGE_TAG) to $(REGISTRY) via Jib..."
-	cd ../../apps/$(APP) && ./gradlew jib -Pgcp
+	cd ../../apps/$(APP); ./gradlew jib -Pgcp
 
 # ── Deploy ───────────────────────────────────────────────────────────────────
 

@@ -3,6 +3,8 @@ replicaCount: 2
 domainPrefix: rbn/prod
 apiKey: prod-secret-key
 
+springProfile: minikube
+
 config:
   envInfo: prod
 

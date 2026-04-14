@@ -3,5 +3,7 @@ replicaCount: 1
 domainPrefix: rbn/dev
 apiKey: dev-secret-key
 
+springProfile: minikube
+
 config:
   envInfo: dev
