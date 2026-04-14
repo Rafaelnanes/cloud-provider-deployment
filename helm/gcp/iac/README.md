@@ -26,25 +26,25 @@ This is what allows the pod to call GCP APIs without storing a credentials JSON 
 | `k8s_namespace` | Namespace where the workload runs (default: `dev`) |
 | `k8s_sa_name` | Kubernetes service account name (default: `products`) |
 
-## Makefile targets
+## Commands
 
 ```bash
-make init        # terraform init — download provider plugins
-make plan        # terraform plan — preview changes, no side effects
-make apply       # terraform apply — apply with interactive confirmation prompt
-make apply-auto  # terraform apply -auto-approve — apply without prompt
-make destroy     # terraform destroy — tear down resources, with confirmation
-make destroy-auto# terraform destroy -auto-approve — tear down without prompt
-make fmt         # terraform fmt — auto-format .tf files
-make validate    # terraform validate — check config syntax/validity
+terraform init                  # download provider plugins (run once, or after adding providers)
+terraform validate              # check config syntax/validity
+terraform fmt                   # auto-format .tf files
+terraform plan                  # preview changes — no side effects
+terraform apply                 # apply with interactive confirmation prompt
+terraform apply -auto-approve   # apply without prompt
+terraform destroy               # tear down resources, with confirmation
+terraform destroy -auto-approve # tear down without prompt
 ```
 
 ### Typical workflow
 
 ```bash
-make init       # once, or after adding providers
-make plan       # review what will change
-make apply      # provision
+terraform init
+terraform plan
+terraform apply
 ```
 
-> **Note:** `apply-auto` and `destroy-auto` skip the confirmation prompt. Use `apply`/`destroy` in production to avoid accidental changes.
+> **Note:** `-auto-approve` skips the confirmation prompt. Use `apply`/`destroy` without it in production to avoid accidental changes.

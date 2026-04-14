@@ -38,19 +38,19 @@ spec:
               cpu: "250m"
               memory: "256Mi"
               ephemeral-storage: "10Mi"
-            limits:
+            limits:              # limits == requests → Guaranteed QoS class; pod won't be throttled or evicted unexpectedly
               cpu: "250m"
               memory: "256Mi"
               ephemeral-storage: "10Mi"
           env:
             - name: JAVA_TOOL_OPTIONS
-              value: "-Djava.io.tmpdir=/tmp/jvm"
+              value: "-Djava.io.tmpdir=/tmp/jvm" # redirects JVM tmp writes to the emptyDir volume (avoids read-only FS errors)
           envFrom:
             - configMapRef:
-                name: {{ .Release.Name }}-config
+                name: {{ .Release.Name }}-config # injects all ConfigMap keys as environment variables
           volumeMounts:
             - name: jvm-tmp
-              mountPath: /tmp/jvm
+              mountPath: /tmp/jvm # writable scratch space for the JVM (temp files, class data sharing)
       volumes:
         - name: jvm-tmp
-          emptyDir: {}
+          emptyDir: {} # ephemeral in-memory volume; destroyed when the pod is removed

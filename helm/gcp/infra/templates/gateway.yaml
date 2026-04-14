@@ -11,7 +11,7 @@ spec:
       protocol: HTTP
       allowedRoutes:
         namespaces:
-          from: Same
+          from: Same # only HTTPRoutes in the same namespace as this Gateway can attach to it
 ---
 apiVersion: gateway.networking.k8s.io/v1
 kind: HTTPRoute
@@ -20,20 +20,20 @@ metadata:
   namespace: {{ .Release.Namespace }}
 spec:
   parentRefs:
-    - name: {{ .Values.gateway.name }}
+    - name: {{ .Values.gateway.name }} # attaches this route to the Gateway defined above
   rules:
-    {{- range .Values.gateway.routes }}
+    {{- range .Values.gateway.routes }} # one rule per entry in values.gateway.routes
     - matches:
         - path:
             type: PathPrefix
-            value: {{ .pathPrefix }}
+            value: {{ .pathPrefix }} # incoming path that triggers this rule (e.g. /rbn/products)
       filters:
         - type: URLRewrite
           urlRewrite:
             path:
               type: ReplacePrefixMatch
-              replacePrefixMatch: {{ .rewriteTo }}
+              replacePrefixMatch: {{ .rewriteTo }} # strips the public prefix before forwarding (e.g. /rbn/products → /products)
       backendRefs:
-        - name: {{ .backendService }}
-          port: {{ .backendPort }}
+        - name: {{ .backendService }} # Kubernetes Service name to forward traffic to
+          port: {{ .backendPort }}    # Service port (cluster-internal)
     {{- end }}

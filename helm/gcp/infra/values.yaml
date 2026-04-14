@@ -3,7 +3,7 @@ gateway:
   class: gke-l7-global-external-managed
   routes:
     - name: products
-      pathPrefix: /rbn/products
-      rewriteTo: /products
-      backendService: products
-      backendPort: 80
+      pathPrefix: /rbn/products # public path exposed by the load balancer
+      rewriteTo: /products      # internal path forwarded to the backend pod
+      backendService: products  # must match the Kubernetes Service name in the products chart
+      backendPort: 80           # must match service.port in the products chart
