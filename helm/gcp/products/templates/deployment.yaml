@@ -33,6 +33,24 @@ spec:
               port: {{ .Values.config.serverPort }}
             initialDelaySeconds: {{ .Values.livenessProbe.initialDelaySeconds }}
             periodSeconds: {{ .Values.livenessProbe.periodSeconds }}
+          resources:
+            requests:
+              cpu: "250m"
+              memory: "256Mi"
+              ephemeral-storage: "10Mi"
+            limits:
+              cpu: "250m"
+              memory: "256Mi"
+              ephemeral-storage: "10Mi"
+          env:
+            - name: JAVA_TOOL_OPTIONS
+              value: "-Djava.io.tmpdir=/tmp/jvm"
           envFrom:
             - configMapRef:
                 name: {{ .Release.Name }}-config
+          volumeMounts:
+            - name: jvm-tmp
+              mountPath: /tmp/jvm
+      volumes:
+        - name: jvm-tmp
+          emptyDir: {}
