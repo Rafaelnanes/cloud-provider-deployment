@@ -4,16 +4,16 @@ metadata:
   name: {{ .Release.Name }}-health-check
   namespace: {{ .Release.Namespace }}
 spec:
-  default:
-    checkIntervalSec: 15
-    timeoutSec: 5
-    healthyThreshold: 1
-    unhealthyThreshold: 2
+  default: # default health check settings applied to all backends unless overridden
+    checkIntervalSec: 40 # how often (seconds) GCP sends a health check probe
+    timeoutSec: 10 # seconds to wait for a response before marking the probe as failed
+    healthyThreshold: 1 # consecutive successes required to mark a backend as healthy
+    unhealthyThreshold: 2 # consecutive failures required to mark a backend as unhealthy
     config:
-      type: HTTP
+      type: HTTP # protocol used for the health check probe
       httpHealthCheck:
-        requestPath: {{ .Values.readinessProbe.path }}
-        port: {{ .Values.config.serverPort }}
+        requestPath: {{ .Values.readinessProbe.path }} # HTTP path the probe hits (e.g. /actuator/health)
+        port: {{ .Values.config.serverPort }} # port on the pod the probe connects to
   targetRef:
     group: ""
     kind: Service
