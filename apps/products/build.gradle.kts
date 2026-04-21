@@ -24,6 +24,8 @@ dependencies {
     implementation("org.springframework.boot:spring-boot-starter-web")
     implementation("org.springframework.boot:spring-boot-starter-actuator")
     implementation("com.google.cloud:spring-cloud-gcp-starter-secretmanager:5.10.0")
+    implementation("com.google.cloud:spring-cloud-gcp-starter-trace:5.10.0")
+    implementation("net.logstash.logback:logstash-logback-encoder:8.0")
     compileOnly("org.projectlombok:lombok")
     annotationProcessor("org.projectlombok:lombok")
     testRuntimeOnly("org.junit.platform:junit-platform-launcher")
