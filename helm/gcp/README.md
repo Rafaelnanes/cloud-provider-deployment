@@ -52,3 +52,53 @@ make -f helm/gcp/Makefile cluster-credentials
 | `--gateway-api` | `standard` | Keeps GKE Gateway API working |
 | `--fleet-project` | `PROJECT_ID` | ASM managed mesh registration |
 | `--enable-ip-alias` | — | VPC-native networking (required for GKE Gateway) |
+
+---
+
+## Products Chart (`helm/gcp/products/`)
+
+Deploys the `products` Spring Boot service to GCP. Unlike the local Helm chart, this variant is designed for GKE with Workload Identity, Artifact Registry images, and GCP-native health check integration.
+
+### Templates
+
+| Template | Resource | Purpose |
+|----------|----------|---------|
+| `configmap.yaml` | `ConfigMap` | Injects `ENV_INFO`, `SERVER_PORT`, `LOG_LEVEL_ROOT`, `LOG_LEVEL_APP`, `SPRING_PROFILES_ACTIVE` as env vars |
+| `deployment.yaml` | `Deployment` | Runs the app container; mounts the ConfigMap, sets resource limits, attaches the ServiceAccount for Workload Identity |
+| `service.yaml` | `Service` (ClusterIP) | Exposes port 80 → targetPort 8080 inside the cluster |
+| `serviceaccount.yaml` | `ServiceAccount` | Annotated with `iam.gke.io/gcp-service-account` to enable Workload Identity Federation |
+| `gateway.yaml` | `HealthCheckPolicy` | Configures the GCP L7 load balancer health check cadence against `/actuator/health/readiness` |
+
+### Key Design Decisions
+
+- **Workload Identity** — the `ServiceAccount` is annotated so the pod can impersonate the GCP service account `products-sa@<PROJECT_ID>.iam.gserviceaccount.com` without storing credentials. Required for Secret Manager access.
+- **QoS: Guaranteed** — CPU and memory `requests` equal `limits` (250m / 256Mi), preventing the pod from being throttled or evicted under node pressure. (to prevent extra costs)
+- **Image** — pulled from Artifact Registry (`gcr.io/<PROJECT_ID>/products:jvm`) with `pullPolicy: Always`; built via Jib through the Makefile.
+
+### Values Overview
+
+| Key | Default | Dev override | Prod override |
+|-----|---------|-------------|---------------|
+| `replicaCount` | `1` | `1` | `2` |
+| `config.envInfo` | `gcp` | `gcp-dev` | `gcp-prod` |
+| `spring.profile` | `dev` | `dev` | `prod` |
+| `readinessProbe.initialDelaySeconds` | `30` | — | — |
+| `livenessProbe.initialDelaySeconds` | `60` | — | — |
+
+### Deploy
+
+```bash
+# Dev
+make -f helm/gcp/Makefile deploy APP=products NAMESPACE=dev
+
+# Prod
+make -f helm/gcp/Makefile deploy APP=products NAMESPACE=prod
+```
+
+### Dependencies
+
+The products chart assumes the following are already deployed:
+
+1. **`helm/gcp/infra`** — GKE Gateway + HTTPRoute that routes `/rbn/products` → `/products` on this service.
+2. **`helm/gcp/istio`** — `AuthorizationPolicy` resources that enforce `x-api-key` header validation and restrict access to the `users` service account.
+3. **`helm/gcp/iac`** (Terraform) — GCP IAM bindings that grant the `products-sa` service account `roles/secretmanager.secretAccessor` and the Workload Identity User role.
